@@ -3,7 +3,6 @@ console.log("hello");
 require('dotenv').config();
 const db = {};
 
-
 const connection = new Sequelize(
     process.env.Database,
     process.env.User,
@@ -13,6 +12,7 @@ const connection = new Sequelize(
         dialect: "mysql",
     }
 );
+
 connection
   .authenticate()
   .then(() => {
@@ -92,5 +92,5 @@ db.Media.belongsTo(db.Doctor, { foreignKey: 'doctorId', as: 'Doctor' });
 //     .catch((err) => console.error("Error syncing database", err));
 
 db.Sequelize = Sequelize;
-db.connection=connection
+db.connection = connection;  // ✅ Ensure this is set
 module.exports = db;

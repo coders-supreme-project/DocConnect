@@ -92,4 +92,5 @@ db.Media.belongsTo(db.Doctor, { foreignKey: 'doctorId', as: 'Doctor' });
 //     .catch((err) => console.error("Error syncing database", err));
 
 db.Sequelize = Sequelize;
+db.connection=connection
 module.exports = db;

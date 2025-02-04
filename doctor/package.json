@@ -1,5 +1,5 @@
 {
-  "name": "my-vite-app",
+  "name": "doctor",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,10 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "^2.5.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-redux": "^9.2.0"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

@@ -48,7 +48,15 @@ module.exports = (sequelize) => {
             type: DataTypes.TEXT,
             allowNull: true,
             comment: "Brief history of past medical conditions"
-        }
+        },
+        LocationLatitude: {
+            type: DataTypes.DECIMAL(9, 6),
+            allowNull: true,
+          },
+          LocationLongitude: {
+            type: DataTypes.DECIMAL(9, 6),
+            allowNull: true,
+          },
     }, {
         timestamps: true
     });

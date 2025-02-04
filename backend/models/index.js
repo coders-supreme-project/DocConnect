@@ -3,15 +3,19 @@ console.log("hello");
 require("dotenv").config()
 const db = {};
 
-const connection = new Sequelize(process.env.DATABASE, process.env.USER, process.env.PASSWORD, {
-    host: process.env.HOST,
-    dialect: "mysql",
-});
+const connection = new Sequelize(
+    process.env.Database,
+    process.env.User,
+    process.env.Password,
+    {
+        host: process.env.Host,
+        dialect: "mysql",
+    }
+);
 
-db.connection = connection;  // ✅ Ensure this is set
-db.Sequelize = Sequelize;  // ✅ Ensure Sequelize is included
 
-module.exports = db;
+
+
 
 
 // Import models
@@ -85,4 +89,5 @@ db.Media.belongsTo(db.Doctor, { foreignKey: 'doctorId', as: 'Doctor' });
 //     .catch((err) => console.error("Error syncing database", err));
 
 db.Sequelize = Sequelize;
+db.connection = connection;  // ✅ Ensure this is set
 module.exports = db;

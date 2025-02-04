@@ -2,18 +2,26 @@ const { Sequelize, DataTypes } = require('sequelize');
 require('dotenv').config();
 
 console.log("hello");
-
+require("dotenv").config()
 const db = {};
 
 const connection = new Sequelize(
-    process.env.DATABASE,
-    process.env.USER,
-    process.env.password,
+    process.env.Database,
+    process.env.User,
+    process.env.Password,
     {
-        host: process.env.HOST,
+        host: process.env.Host,
         dialect: "mysql",
     }
 );
+connection
+  .authenticate()
+  .then(() => {
+    console.log("✅ database connected ");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 // Import models
 db.Media = require('./media.model')(connection, DataTypes);
@@ -86,4 +94,5 @@ db.Media.belongsTo(db.Doctor, { foreignKey: 'doctorId', as: 'Doctor' });
 //     .catch((err) => console.error("Error syncing database", err));
 
 db.Sequelize = Sequelize;
+db.connection = connection;
 module.exports = db;

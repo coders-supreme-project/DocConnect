@@ -35,10 +35,8 @@ module.exports = (sequelize) => {
         type: DataTypes.ENUM("Doctor", "Patient", "Admin"),
         allowNull: false,
       },
-      Speciality: {
-        type: DataTypes.STRING(100),
-        allowNull: true,
-      },
+    
+
       LocationLatitude: {
         type: DataTypes.DECIMAL(9, 6),
         allowNull: true,

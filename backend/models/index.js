@@ -85,6 +85,8 @@ db.ChatroomMessage.belongsTo(db.User, { foreignKey: 'SenderID', as: 'Sender' });
 db.User.hasMany(db.Availability, { foreignKey: 'DoctorID', as: 'Availabilities' });
 db.Availability.belongsTo(db.User, { foreignKey: 'DoctorID', as: 'Doctor' });
 
+
+
 db.Patient.hasOne(db.Media, { foreignKey: 'patientId', as: 'ProfilePicture' });
 db.Doctor.hasOne(db.Media, { foreignKey: 'doctorId', as: 'ProfilePicture' });
 db.Media.belongsTo(db.Doctor, { foreignKey: 'doctorId', as: 'Doctor' });

@@ -1,18 +1,26 @@
 const { Sequelize, DataTypes } = require('sequelize');
 console.log("hello");
-
+require('dotenv').config();
 const db = {};
 
+
 const connection = new Sequelize(
-    "docconnect",
-    "root",
-    "root",
+    process.env.Database,
+    process.env.User,
+    process.env.Password,
     {
-        host: "localhost",
+        host: process.env.Host,
         dialect: "mysql",
     }
 );
-
+connection
+  .authenticate()
+  .then(() => {
+    console.log("database connected ");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 // Import models
 db.Media = require('./media.model')(connection, DataTypes);
 db.User = require('./user.model')(connection, DataTypes);

@@ -2,6 +2,7 @@
 import React from 'react';
 import { Play, Search, Clock } from 'lucide-react';
 import "./Main.css"
+import { useNavigate } from 'react-router-dom';
   interface NavItem {
       label: string;
       href: string;
@@ -20,7 +21,7 @@ import "./Main.css"
         { label: 'Help', href: '#' },
         { label: 'Blogs', href: '#' },
       ];
-    
+    const navigate=useNavigate()
       const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         // Handle search logic here
@@ -49,7 +50,7 @@ import "./Main.css"
   
             <div className="nav-buttons">
               <button className="btn btn-outline">Sign Up</button>
-              <button className="btn btn-primary">Log In</button>
+              <button className="btn btn-primary" onClick={()=>navigate("/login")}>Log In</button>
             </div>
           </div>
         </nav>

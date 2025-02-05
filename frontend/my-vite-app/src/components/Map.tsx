@@ -1,26 +1,40 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
 import axios from 'axios';
-import 'leaflet/dist/leaflet.css';
+import { GoogleMap, Marker, InfoWindow, useLoadScript } from '@react-google-maps/api';
 
 interface Doctor {
     id: number;
+    firstName: string;
+    lastName: string;
     User: {
-        FirstName: string;
-        LastName: string;
-        Email: string;
-        Role: string;
+        email: string;
+        role: string;
     };
-    LocationLatitude: number;
-    LocationLongitude: number;
+    LocationLatitude: string;
+    LocationLongitude: string;
     distance: number;
+    specialty:string
 }
+
+const mapContainerStyle = {
+    height: '100vh',
+    width: '100%',
+};
+
+const center = {
+    lat: 37.7749, // Default center (San Francisco)
+    lng: -122.4194,
+};
 
 const DoctorMap: React.FC = () => {
     const [doctors, setDoctors] = useState<Doctor[]>([]);
     const [userLat, setUserLat] = useState<number | null>(null);
     const [userLng, setUserLng] = useState<number | null>(null);
+    const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+
+    const { isLoaded, loadError } = useLoadScript({
+        googleMapsApiKey: 'AIzaSyB5gnUWjb84t6klt5vcPjMOQylhQRFB5Wc', // Replace with your Google Maps API key
+    });
 
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(
@@ -28,11 +42,12 @@ const DoctorMap: React.FC = () => {
                 const { latitude, longitude } = position.coords;
                 setUserLat(latitude);
                 setUserLng(longitude);
-
+            console.log(latitude," ",longitude,"possitiiion");
+            
                 axios.post('http://127.0.0.1:5000/api/doctor/location', { lat: latitude, lng: longitude })
                     .then((response) => {
                         setDoctors(response.data);
-                        console.log(response.data,"doctoors")
+                        console.log(response.data, "doctors");
                     })
                     .catch((error) => console.error("Error fetching doctors:", error));
             },
@@ -40,46 +55,55 @@ const DoctorMap: React.FC = () => {
         );
     }, []);
 
-    if (userLat === null || userLng === null) {
-        return <div>Loading...</div>;
-    }
-
-    const customIcon = new L.Icon({
-        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-        shadowSize: [41, 41],
-    });
+    if (loadError) return <div>Error loading maps</div>;
+    if (!isLoaded) return <div>Loading Maps...</div>;
+    if (userLat === null || userLng === null) return <div>Loading...</div>;
 
     return (
         <div style={{ height: '100vh', width: '100%' }}>
-            <MapContainer center={[userLat, userLng]} zoom={13} style={{ height: '100%', width: '100%' }}>
-                <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            <GoogleMap
+                mapContainerStyle={mapContainerStyle}
+                zoom={13}
+                center={{ lat: userLat, lng: userLng }}
+            >
+                <Marker
+                    position={{ lat: userLat, lng: userLng }}
+                    icon={{
+                        url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                    }}
                 />
-                <Marker position={[userLat, userLng]} icon={customIcon}>
-                    <Popup>Your Location</Popup>
-                </Marker>
-                {doctors.map((doctor) => (
+
+                {doctors?.map((doctor) => (
                     <Marker
                         key={doctor.id}
-                        position={[doctor.LocationLatitude, doctor.LocationLongitude]}
-                        icon={customIcon}
-                    >
-                        <Popup>
-                            <div>
-                                <h3>{`${doctor.User.FirstName} ${doctor.User.LastName}`}</h3>
-                                <p>{doctor.User.Email}</p>
-                                <p>{doctor.User.Role}</p>
-                                <p>{`Distance: ${doctor.distance.toFixed(2)} km`}</p>
-                            </div>
-                        </Popup>
-                    </Marker>
+                        position={{ lat: parseFloat(doctor.LocationLongitude), lng: parseFloat(doctor.LocationLatitude) }}
+                        onClick={() =>{ setSelectedDoctor(doctor)
+
+                            console.log(selectedDoctor,"doctoor");
+
+                        }}
+                        icon={{
+                            url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                        }}
+                    />
                 ))}
-            </MapContainer>
+
+                {selectedDoctor && (
+                    <InfoWindow
+                        position={{ lat:parseFloat( selectedDoctor.LocationLatitude), lng:parseFloat( selectedDoctor.LocationLongitude) }}
+                        onCloseClick={() =>{ 
+                            console.log(selectedDoctor,"doctoor");
+                            
+                            setSelectedDoctor(null)}}
+                    >
+                        <div>
+                            <h3>{`${selectedDoctor.firstName} ${selectedDoctor.lastName}`}</h3>
+                            <p>{selectedDoctor.specialty}</p>
+                            <p>{`Distance: ${selectedDoctor.distance.toFixed(2)} km`}</p>
+                        </div>
+                    </InfoWindow>
+                )}
+            </GoogleMap>
         </div>
     );
 };

@@ -5,14 +5,16 @@ const App = express();
 App.use(express.json())
 App.use(express.urlencoded({ extended: true }));
 App.use(cors());
+const bodyParser = require("body-parser");
+const doctorRoute = require('./routes/doctorRoutes')
 
-const db=require("../backend/models/index")
+
 
 const port = process.env.PORT || 5000;
 
+App.use("/api/doctor", doctorRoute);
 
 
-// App.use('');
 // App.use('/',);
 // App.use("/",);
 // App.use("/", );

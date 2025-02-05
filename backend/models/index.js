@@ -1,4 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize');
+require('dotenv').config();
+
 console.log("hello");
 require("dotenv").config()
 const db = {};
@@ -12,11 +14,14 @@ const connection = new Sequelize(
         dialect: "mysql",
     }
 );
-
-
-
-
-
+connection
+  .authenticate()
+  .then(() => {
+    console.log("✅ database connected ");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 // Import models
 db.Media = require('./media.model')(connection, DataTypes);
@@ -80,6 +85,8 @@ db.ChatroomMessage.belongsTo(db.User, { foreignKey: 'SenderID', as: 'Sender' });
 db.User.hasMany(db.Availability, { foreignKey: 'DoctorID', as: 'Availabilities' });
 db.Availability.belongsTo(db.User, { foreignKey: 'DoctorID', as: 'Doctor' });
 
+
+
 db.Patient.hasOne(db.Media, { foreignKey: 'patientId', as: 'ProfilePicture' });
 db.Doctor.hasOne(db.Media, { foreignKey: 'doctorId', as: 'ProfilePicture' });
 db.Media.belongsTo(db.Doctor, { foreignKey: 'doctorId', as: 'Doctor' });
@@ -89,5 +96,5 @@ db.Media.belongsTo(db.Doctor, { foreignKey: 'doctorId', as: 'Doctor' });
 //     .catch((err) => console.error("Error syncing database", err));
 
 db.Sequelize = Sequelize;
-db.connection = connection;  // ✅ Ensure this is set
+db.connection = connection;
 module.exports = db;

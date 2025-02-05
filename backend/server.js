@@ -1,6 +1,7 @@
 const express = require("express");
 // const { sequelize } = require("./models");
 const cors = require("cors")
+const doctorRoutes = require("./routers/doctor.router");
 const App = express();
 
 const db=require("../backend/models/index")
@@ -13,7 +14,7 @@ App.use(cors());
 
 App.use("/api/users", authRoutes);
 
-// App.use('');
+App.use('/api/doctor', doctorRoutes);
 // App.use('/',);
 // App.use("/",);
 // App.use("/", );

@@ -8,9 +8,9 @@ const db=require("../backend/models/index")
 const authRoutes = require('./Routes/user.routes')
 
 const port = process.env.PORT || 5000;
+App.use(cors());
 App.use(express.json())
 App.use(express.urlencoded({ extended: true }));
-App.use(cors());
 
 App.use("/api/users", authRoutes);
 

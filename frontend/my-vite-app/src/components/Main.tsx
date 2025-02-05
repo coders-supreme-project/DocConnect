@@ -1,32 +1,69 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Play, Search, Clock } from 'lucide-react';
-import "./Main.css"
+import axios from 'axios';
+import "./Main.css";
 import { useNavigate } from 'react-router-dom';
-  interface NavItem {
-      label: string;
-      href: string;
+interface NavItem {
+  label: string;
+  href: string;
+}
+
+interface Doctor {
+  id: number;
+  firstName: string;
+  lastName: string;
+  specialty: string;
+  experience: number;
+  bio: string;
+  qualifications?: string;
+  Availabilities: {
+    availableDate?: string;
+    startTime?: string;
+    endTime?: string;
+  }[];
+}
+
+const Main: React.FC = () => {
+  const navigate=useNavigate()
+  const navItems: NavItem[] = [
+    { label: 'Home', href: '#' },
+    { label: 'Service', href: '#' },
+    { label: 'Contact Us', href: '#' },
+    { label: 'Help', href: '#' },
+    { label: 'Blogs', href: '#' },
+  ];
+
+  const [searchParams, setSearchParams] = useState({
+    name: '',
+    specialization: '',
+    city: '',
+    zipCode: '',
+    availableDate: '',
+    availableTime: ''
+  });
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchParams({
+      ...searchParams,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await axios.get('http://localhost:5000/api/doctor/search', { params: searchParams });
+      console.log('✅✅', response.data);
+      
+      setDoctors(response.data);
+      // console.log('👩‍⚕️👨‍⚕️', doctors);
+      
+    } catch (error) {
+      console.error('Error searching for doctors:', error);
     }
-    
-    interface Doctor {
-      name: string;
-      specialty: string;
-    }
-    
-    const Main: React.FC = () => {
-      const navItems: NavItem[] = [
-        { label: 'Home', href: '#' },
-        { label: 'Service', href: '#' },
-        { label: 'Contact Us', href: '#' },
-        { label: 'Help', href: '#' },
-        { label: 'Blogs', href: '#' },
-      ];
-    const navigate=useNavigate()
-      const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Handle search logic here
-      };
-    
+  };
+
   return (
       <div>
         {/* Navigation */}
@@ -121,4 +158,4 @@ import { useNavigate } from 'react-router-dom';
     );
 }
 
-export default Main
+export default Main;

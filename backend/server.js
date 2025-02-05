@@ -1,20 +1,22 @@
 const express = require("express");
 // const { sequelize } = require("./models");
 const cors = require("cors")
+const doctorRoutes = require("./Routes/doctor.routes");
 const App = express();
+
+const db=require("../backend/models/index")
+const authRoutes = require('./Routes/user.routes')
+
+const port = process.env.PORT || 5000;
 App.use(express.json())
 App.use(express.urlencoded({ extended: true }));
 App.use(cors());
 const bodyParser = require("body-parser");
-const doctorRoute = require('./routes/doctorRoutes')
 
 
+App.use("/api/users", authRoutes);
 
-const port = process.env.PORT || 5000;
-
-App.use("/api/doctor", doctorRoute);
-
-
+App.use('/api/doctor', doctorRoutes);
 // App.use('/',);
 // App.use("/",);
 // App.use("/", );

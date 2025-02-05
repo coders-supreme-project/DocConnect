@@ -1,63 +1,87 @@
-// export interface User {
-//     FirstName: string;
-//     LastName: string;
-//     Email: string;
-//     Role: string;
-// }
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import axios from 'axios';
+import 'leaflet/dist/leaflet.css';
 
-// export interface Doctor {
-//     id: number;
-//     firstName: string;
-//     lastName: string;
-//     LocationLatitude: number;
-//     LocationLongitude: number;
-//     distance: number;
-//     User: User;
-// }
-// import React from "react";
-// import {  Marker, useLoadScript } from "@react-google-maps/api";
+interface Doctor {
+    id: number;
+    User: {
+        FirstName: string;
+        LastName: string;
+        Email: string;
+        Role: string;
+    };
+    LocationLatitude: number;
+    LocationLongitude: number;
+    distance: number;
+}
 
-// const mapContainerStyle = {
-//     width: "100%",
-//     height: "500px",
-// };
+const DoctorMap: React.FC = () => {
+    const [doctors, setDoctors] = useState<Doctor[]>([]);
+    const [userLat, setUserLat] = useState<number | null>(null);
+    const [userLng, setUserLng] = useState<number | null>(null);
 
-// const center = {
-//     lat: 37.7749,
-//     lng: -122.4194,
-// };
+    useEffect(() => {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                setUserLat(latitude);
+                setUserLng(longitude);
 
-// interface MapProps {
-//     userLocation: { lat: number; lng: number } | null;
-//     nearestDoctors: Doctor[];
-// }
+                axios.post('http://127.0.0.1:5000/api/doctor/location', { lat: latitude, lng: longitude })
+                    .then((response) => {
+                        setDoctors(response.data);
+                        console.log(response.data,"doctoors")
+                    })
+                    .catch((error) => console.error("Error fetching doctors:", error));
+            },
+            (error) => console.error("Error getting user location:", error)
+        );
+    }, []);
 
-// const Map: React.FC<MapProps> = ({ userLocation, nearestDoctors }) => {
-//     const { isLoaded, loadError } = useLoadScript({
-//     });
+    if (userLat === null || userLng === null) {
+        return <div>Loading...</div>;
+    }
 
-//     if (loadError) return <div>Error loading maps</div>;
-//     if (!isLoaded) return <div>Loading Maps...</div>;
+    const customIcon = new L.Icon({
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+        shadowSize: [41, 41],
+    });
 
-//     return (
-//         <GoogleMap
-//             mapContainerStyle={mapContainerStyle}
-//             zoom={12}
-//             center={userLocation || center}
-//         >
-//             {/* Marker for the current user */}
-//             {userLocation && <Marker position={userLocation} label="You" />}
+    return (
+        <div style={{ height: '100vh', width: '100%' }}>
+            <MapContainer center={[userLat, userLng]} zoom={13} style={{ height: '100%', width: '100%' }}>
+                <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                <Marker position={[userLat, userLng]} icon={customIcon}>
+                    <Popup>Your Location</Popup>
+                </Marker>
+                {doctors.map((doctor) => (
+                    <Marker
+                        key={doctor.id}
+                        position={[doctor.LocationLatitude, doctor.LocationLongitude]}
+                        icon={customIcon}
+                    >
+                        <Popup>
+                            <div>
+                                <h3>{`${doctor.User.FirstName} ${doctor.User.LastName}`}</h3>
+                                <p>{doctor.User.Email}</p>
+                                <p>{doctor.User.Role}</p>
+                                <p>{`Distance: ${doctor.distance.toFixed(2)} km`}</p>
+                            </div>
+                        </Popup>
+                    </Marker>
+                ))}
+            </MapContainer>
+        </div>
+    );
+};
 
-//             {/* Markers for nearest doctors */}
-//             {nearestDoctors.map((doctor) => (
-//                 <Marker
-//                     key={doctor.id}
-//                     position={{ lat: doctor.LocationLatitude, lng: doctor.LocationLongitude }}
-//                     label={`${doctor.User.FirstName} ${doctor.User.LastName}`}
-//                 />
-//             ))}
-//         </GoogleMap>
-//     );
-// };
-
-// export default Map;
+export default DoctorMap;

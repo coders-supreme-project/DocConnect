@@ -4,8 +4,14 @@ import { Provider } from 'react-redux';
 import store from './store/store';  // Ensure this path is correct
 import App from './App';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <Provider store={store}>
-    <App />
-  </Provider>
-);
+const rootElement = document.getElementById('root');
+
+if (rootElement) {
+  ReactDOM.createRoot(rootElement).render(
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
+} else {
+  console.error('Root element not found');
+}

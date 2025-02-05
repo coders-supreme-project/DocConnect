@@ -1,10 +1,39 @@
-const db = require("../models/index");
-const Doctor = db.Doctor;
-const User = db.User;
+const { Op } = require('sequelize');
+const db = require('../models/index');
+const {haversineDistance}=require("../utils/haversine.js")
+module.exports = {
+ 
+ 
+searchDoctors : async (req, res) => {
+  const { specialization, city, zipCode, availableDate, availableTime } = req.query;
 
-const { haversineDistance } = require("../utils/haversine");
+  try {
+    const doctors = await db.Doctor.findAll({
+      where: {
+        specialty: specialization,
+        [Op.or]: [
+          { city: city },
+          { zipCode: zipCode }
+        ],
+        '$Availabilities.AvailableDate$': availableDate,
+        '$Availabilities.StartTime$': { [Op.lte]: availableTime },
+        '$Availabilities.EndTime$': { [Op.gte]: availableTime }
+      },
+      include: [
+        {
+          model: db.Availability,
+          as: 'Availabilities',
+          required: true
+        }
+      ]
+    });
 
-const getLocationDoctors=async(req,res)=>{
+    res.status(200).json(doctors);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+},
+ getLocationDoctors:async(req,res)=>{
     const { lat, lng } = req.body;
 
     if (!lat || !lng) {
@@ -13,10 +42,10 @@ const getLocationDoctors=async(req,res)=>{
 
     try {
         // Fetch all doctors with their associated User data
-        const doctors = await Doctor.findAll({
+        const doctors = await db.Doctor.findAll({
             include: [
                 {
-                    model: User,
+                    model: db.User,
                     as: "User", // Use the alias defined in the association
                     attributes: ["FirstName", "LastName", "Email", "Role"],
                 },
@@ -38,21 +67,4 @@ const getLocationDoctors=async(req,res)=>{
         res.status(500).json({ error: "Internal server error" });
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-module.exports = {
-  
-    getLocationDoctors,
-    
-  };
-  
+}

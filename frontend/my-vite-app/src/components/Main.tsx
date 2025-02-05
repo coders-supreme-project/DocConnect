@@ -49,7 +49,7 @@ import { useNavigate } from 'react-router-dom';
             </div>
   
             <div className="nav-buttons">
-              <button className="btn btn-outline">Sign Up</button>
+              <button className="btn btn-outline" onClick={()=>navigate("/register")}>Sign Up</button>
               <button className="btn btn-primary" onClick={()=>navigate("/login")}>Log In</button>
             </div>
           </div>

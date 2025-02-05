@@ -1,84 +1,87 @@
-// import React, { useState, useEffect, useCallback } from 'react';
-// import { TextField, List, ListItem, ListItemText } from '@mui/material';
+import React, { useState, useEffect, useCallback } from "react";
 
-// export interface SearchResult {
-//   place_id: number;
-//   display_name: string;
-//   lat: string;
-//   lon: string;
-// }
+export interface SearchResult {
+  place_id: number;
+  display_name: string;
+  lat: string;
+  lon: string;
+}
 
-// interface LocationSearchProps {
-//   onSelectLocation: (result: SearchResult) => void;
-//   initialValue?: string;
-// }
+interface LocationSearchProps {
+  onSelectLocation: (result: SearchResult) => void;
+  initialValue?: string;
+}
 
-// const LocationSearch: React.FC<LocationSearchProps> = ({ onSelectLocation, initialValue = '' }) => {
-//   const [query, setQuery] = useState(initialValue);
-//   const [results, setResults] = useState<SearchResult[]>([]);
+const LocationSearch: React.FC<LocationSearchProps> = ({ onSelectLocation, initialValue = "" }) => {
+  const [query, setQuery] = useState(initialValue);
+  const [results, setResults] = useState<SearchResult[]>([]);
 
-//   // Custom debounce function
-//   const debounce = (func, wait) => {
-//     let timeout;
-//     const debouncedFunction = (...args) => {
-//       clearTimeout(timeout);
-//       timeout = setTimeout(() => func(...args), wait);
-//     };
-//     debouncedFunction.cancel = () => clearTimeout(timeout); // Add cancel method
-//     return debouncedFunction;
-//   };
+  // Debounce function to limit API calls
+  const debounce = (func: Function, wait: number) => {
+    let timeout: number;
+    return (...args: any[]) => {
+      clearTimeout(timeout);
+      timeout = window.setTimeout(() => func(...args), wait);
+    };
+  };
 
-//   const searchLocation = async (input: string) => {
-//     if (input.length < 3) return;
-//     try {
-//       const response = await fetch(
-//         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input)}`
-//       );
-//       const data = await response.json();
-//       setResults(data);
-//     } catch (error) {
-//       console.error('Error searching for location:', error);
-//     }
-//   };
+  // Fetch locations from OpenStreetMap API
+  const searchLocation = async (input: string) => {
+    if (input.length < 3) return;
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input)}`
+      );
+      const data = await response.json();
+      setResults(data);
+    } catch (error) {
+      console.error("Error searching for location:", error);
+    }
+  };
 
-//   // Memoize the debounced search function
-//   const debouncedSearch = useCallback(debounce(searchLocation, 300), []);
+  const debouncedSearch = useCallback(debounce(searchLocation, 300), []);
 
-//   useEffect(() => {
-//     debouncedSearch(query);
-//     return () => {
-//       debouncedSearch.cancel(); // Cancel the debounced function on cleanup
-//     };
-//   }, [query, debouncedSearch]);
+  useEffect(() => {
+    debouncedSearch(query);
+  }, [query, debouncedSearch]);
 
-//   const handleSelectLocation = (result: SearchResult) => {
-//     setQuery(result.display_name);
-//     setResults([]);
-//     onSelectLocation(result);
-//   };
+  const handleSelectLocation = (result: SearchResult) => {
+    setQuery(result.display_name);
+    setResults([]);
+    onSelectLocation(result);
+  };
 
-//   return (
-//     <div>
-//       <TextField
-//         fullWidth
-//         label="Address"
-//         value={query}
-//         onChange={(e) => setQuery(e.target.value)}
-//         margin="normal"
-//       />
-//       <List>
-//         {results.map((result) => (
-//           <ListItem
-//             key={result.place_id}
-//             onClick={() => handleSelectLocation(result)}
-//             sx={{ cursor: 'pointer' }}
-//           >
-//             <ListItemText primary={result.display_name} />
-//           </ListItem>
-//         ))}
-//       </List>
-//     </div>
-//   );
-// };
+  // Styles for list items
+  const listItemStyle: React.CSSProperties = {
+    padding: "10px",
+    cursor: "pointer",
+    borderBottom: "1px solid #eee",
+  };
 
-// export default LocationSearch;
+  return (
+    <div>
+      <input
+        type="text"
+        placeholder="Search location..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        style={{ width: "100%", padding: "10px", margin: "10px 0" }}
+      />
+      <div style={{ maxHeight: "200px", overflowY: "auto" }}>
+        {results.map((result) => (
+          <div
+            key={result.place_id}
+            onClick={() => handleSelectLocation(result)}
+            style={listItemStyle}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f5")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "")}
+          >
+            {result.display_name}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default LocationSearch;

@@ -1,152 +1,78 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "../store/store";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import {
-  setFirstName,
-  setEmailOrUsername,
-  setPassword,
-  setConfirmPassword,
-  setUserType,
-  setLocation,
-  resetForm,
-} from "../store/formSlice";
 import axios from "axios";
-import LocationSearch, { SearchResult } from "./LocationSearch";
+import toast from "react-hot-toast";
+import { RegisterFormData } from "../store/formSlice";
+import { AuthResponse } from "../store/authSlice";
+import LocationSearch, { SearchResult } from "../components/LocationSearch";
 
-const Register: React.FC = () => {
-  const dispatch: AppDispatch = useDispatch();
-  const formState = useSelector((state: RootState) => state.form);
-  const navigate = useNavigate();
-  const [error, setError] = useState("");
-  const [specialty, setSpecialty] = useState("");
-  const [bio, setBio] = useState("");
-  const [meetingPrice, setMeetingPrice] = useState("");
+export default function Register() {
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormData>();
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<SearchResult | null>(null);
+  const navigate = useNavigate();
+  const selectedRole = watch("role");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    if (formState.password !== formState.confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
+  const onSubmit = async (data: RegisterFormData) => {
     try {
-      const response = await axios.post("http://localhost:5000/api/users/register", {
-        FirstName: formState.firstName,
-        Username: formState.Username,
-        Password: formState.password,
-        Email: formState.Username,
-        Role: formState.userType === "Doctor" ? "Doctor" : "Patient",
-        Specialty: formState.userType === "Doctor" ? specialty : "",
-        Bio: formState.userType === "Doctor" ? bio : "",
-        MeetingPrice: formState.userType === "Doctor" ? meetingPrice : "",
-        Latitude: selectedLocation ? Number(selectedLocation.lat) : null,
-        Longitude: selectedLocation ? Number(selectedLocation.lon) : null,
-      });
+      setIsLoading(true);
+      
+      const requestData = {
+        FirstName: data.firstName,
+        LastName: data.lastName,
+        Username: data.username,
+        Password: data.password,
+        Email: data.email,
+        Role: data.role,
+        Speciality: data.role === "Doctor" ? data.speciality : undefined,
+        Bio: data.role === "Doctor" ? data.bio : undefined,
+        MeetingPrice: data.role === "Doctor" ? data.meetingPrice : undefined,
+        LocationLatitude: selectedLocation?.lat,
+        LocationLongitude: selectedLocation?.lon,
+      };
+      
+      const response = await axios.post<AuthResponse>("http://localhost:5000/api/users/register", requestData);
 
-      if (response.status === 201) {
-        console.log("Registration successful");
+      if (response.data.user) {
+        toast.success("Registration successful! Please login.");
         navigate("/login");
-        dispatch(resetForm());
       }
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        setError(error.response.data.message || "An error occurred during registration");
-      } else {
-        setError("An unexpected error occurred");
-      }
-      console.error("Registration error:", error);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Registration failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "20px" }}>
+    <div className="container">
       <h2>Register</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleSubmit} style={{ width: "300px" }}>
-        <input
-          type="text"
-          placeholder="First Name"
-          value={formState.firstName}
-          onChange={(e) => dispatch(setFirstName(e.target.value))}
-          style={{ width: "100%", padding: "10px", margin: "10px 0" }}
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={formState.Username}
-          onChange={(e) => dispatch(setEmailOrUsername(e.target.value))}
-          style={{ width: "100%", padding: "10px", margin: "10px 0" }}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={formState.password}
-          onChange={(e) => dispatch(setPassword(e.target.value))}
-          style={{ width: "100%", padding: "10px", margin: "10px 0" }}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          value={formState.confirmPassword}
-          onChange={(e) => dispatch(setConfirmPassword(e.target.value))}
-          style={{ width: "100%", padding: "10px", margin: "10px 0" }}
-          required
-        />
-        <select
-          value={formState.userType}
-          onChange={(e) => dispatch(setUserType(e.target.value as "Doctor" | "Patient"))}
-          style={{ width: "100%", padding: "10px", margin: "10px 0" }}
-          required
-        >
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <input {...register("firstName", { required: "First name is required" })} placeholder="First Name" />
+        <input {...register("lastName", { required: "Last name is required" })} placeholder="Last Name" />
+        <input {...register("username", { required: "Username is required" })} placeholder="Username" />
+        <input {...register("email", { required: "Email is required" })} placeholder="Email" type="email" />
+        <input {...register("password", { required: "Password is required" })} placeholder="Password" type="password" />
+        
+        <select {...register("role", { required: "Role is required" })}>
+          <option value="">Select Role</option>
           <option value="Patient">Patient</option>
           <option value="Doctor">Doctor</option>
         </select>
-        {formState.userType === "Doctor" && (
+        
+        {selectedRole === "Doctor" && (
           <>
-            <input
-              type="text"
-              placeholder="Specialty"
-              value={specialty}
-              onChange={(e) => setSpecialty(e.target.value)}
-              style={{ width: "100%", padding: "10px", margin: "10px 0" }}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Bio"
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              style={{ width: "100%", padding: "10px", margin: "10px 0" }}
-            />
-            <input
-              type="number"
-              placeholder="Meeting Price"
-              value={meetingPrice}
-              onChange={(e) => setMeetingPrice(e.target.value)}
-              style={{ width: "100%", padding: "10px", margin: "10px 0" }}
-            />
+            <input {...register("speciality", { required: "Speciality is required" })} placeholder="Speciality" />
+            <textarea {...register("bio")} placeholder="Bio" />
+            <input {...register("meetingPrice", { valueAsNumber: true })} placeholder="Meeting Price" type="number" />
           </>
         )}
-        <LocationSearch onSelectLocation={(result) => {
-          setSelectedLocation(result);
-          dispatch(setLocation({ latitude: Number(result.lat), longitude: Number(result.lon) }));
-        }} />
-        <button type="submit" style={{ width: "100%", padding: "10px", backgroundColor: "blue", color: "white", border: "none", cursor: "pointer" }}>
-          Register
-        </button>
+
+        <LocationSearch onSelectLocation={setSelectedLocation} />
+        
+        <button type="submit" disabled={isLoading}>{isLoading ? "Registering..." : "Register"}</button>
       </form>
-      <p style={{ marginTop: "10px" }}>
-        Already have an account? <span onClick={() => navigate("/login")} style={{ color: "blue", cursor: "pointer" }}>Login here</span>
-      </p>
     </div>
   );
-};
-
-export default Register;
+}

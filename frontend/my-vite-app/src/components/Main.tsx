@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Play, Search, Clock } from 'lucide-react';
 import axios from 'axios';
 import "./Main.css";
+import { useNavigate } from 'react-router-dom';
 
 interface NavItem {
   label: string;
@@ -24,6 +25,7 @@ interface Doctor {
 }
 
 const Main: React.FC = () => {
+  const navigate = useNavigate();
   const navItems: NavItem[] = [
     { label: 'Home', href: '#' },
     { label: 'Service', href: '#' },
@@ -80,7 +82,7 @@ const Main: React.FC = () => {
           </div>
           <div className="nav-buttons">
             <button className="btn btn-outline">Sign Up</button>
-            <button className="btn btn-primary">Log In</button>
+            <button className="btn btn-primary"onClick={()=>navigate("/login")}>Log In</button>
           </div>
         </div>
       </nav>
@@ -133,9 +135,9 @@ const Main: React.FC = () => {
             <input type="text" name="zipCode" placeholder="Zip Code" value={searchParams.zipCode} onChange={handleChange} />
             <input type="date" name="availableDate" value={searchParams.availableDate} onChange={handleChange} />
             <input type="time" name="availableTime" value={searchParams.availableTime} onChange={handleChange} />
-            <button type="submit" className="btn btn-primary search-btn">
-              <Search size={20} />
-              <span>Search</span>
+            <button type="submit" className="btn btn-sm btn-primary search-btn px-2 py-1 text-sm">
+              <Search size={16} /> {/* Reduced icon size */}
+              <span className="ml-1">Search</span> {/* Adjusted spacing */}
             </button>
           </form>
           <div className="search-results">

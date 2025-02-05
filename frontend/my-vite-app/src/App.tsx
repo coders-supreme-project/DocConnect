@@ -4,6 +4,7 @@ import Main from './components/Main';
 import AppointmentList from './components/appoitment/appointmentList'; // Correct path for 'appointment'
 import AppointmentForm from './components/appoitment/appointment'; // Correct path for 'appointment'
 import AppointmentDetail from './components/appoitment/appointmentDetail'; // Correct path for 'appointment'
+import Login from './components/Login';
 
 function App() {
   return (
@@ -14,6 +15,8 @@ function App() {
         <Route path="/appointments" element={<AppointmentList />} />
         <Route path="/appointments/create" element={<AppointmentForm />} />
         <Route path="/appointments/:id" element={<AppointmentDetail />} />
+      <Route path='/' element={<Main/>} />
+      <Route path='/login' element={<Login/>} />
       </Routes>
     </BrowserRouter>
   );

@@ -2,15 +2,16 @@ const express = require("express");
 // const { sequelize } = require("./models");
 const cors = require("cors")
 const App = express();
+
+const db=require("../backend/models/index")
+const authRoutes = require('./Routes/user.routes')
+
+const port = process.env.PORT || 5000;
 App.use(express.json())
 App.use(express.urlencoded({ extended: true }));
 App.use(cors());
 
-const db=require("../backend/models/index")
-
-const port = process.env.PORT || 5000;
-
-
+App.use("/api/users", authRoutes);
 
 // App.use('');
 // App.use('/',);

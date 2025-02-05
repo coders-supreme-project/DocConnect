@@ -1,6 +1,7 @@
 const express = require("express");
 // const { sequelize } = require("./models");
 const cors = require("cors")
+const doctorRoutes = require("./routers/doctor.router");
 const App = express();
 App.use(express.json())
 App.use(express.urlencoded({ extended: true }));
@@ -12,7 +13,7 @@ const port = process.env.PORT || 5000;
 
 
 
-// App.use('');
+App.use('/api/doctor', doctorRoutes);
 // App.use('/',);
 // App.use("/",);
 // App.use("/", );

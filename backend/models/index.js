@@ -1,4 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize');
+require('dotenv').config();
+
 console.log("hello");
 require('dotenv').config();
 
@@ -75,6 +77,8 @@ db.ChatroomMessage.belongsTo(db.User, { foreignKey: 'SenderID', as: 'Sender' });
 // ✅ One-to-Many: Doctor Availability
 db.User.hasMany(db.Availability, { foreignKey: 'DoctorID', as: 'Availabilities' });
 db.Availability.belongsTo(db.User, { foreignKey: 'DoctorID', as: 'Doctor' });
+
+
 
 db.Patient.hasOne(db.Media, { foreignKey: 'patientId', as: 'ProfilePicture' });
 db.Doctor.hasOne(db.Media, { foreignKey: 'doctorId', as: 'ProfilePicture' });

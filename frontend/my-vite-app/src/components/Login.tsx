@@ -24,6 +24,9 @@ export default function Login() {
       return;
     }
 
+
+
+
     const loginData = {
       email: data.email.trim(),
       password: data.password.trim(),

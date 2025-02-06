@@ -240,3 +240,58 @@
       font-size: 2.5rem;
     }
   }
+  .doctor-availability {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.custom-calendar {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.custom-calendar th,
+.custom-calendar td {
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.custom-calendar th {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+}
+
+.custom-calendar .day {
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.custom-calendar .day:hover {
+    background-color: #f0f0f0;
+}
+
+.custom-calendar .selected {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.time-slots {
+    margin-top: 20px;
+}
+
+.time-slots ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.time-slots li {
+    padding: 5px;
+    border: 1px solid #ddd;
+    margin-bottom: 5px;
+    background-color: #f9f9f9;
+}

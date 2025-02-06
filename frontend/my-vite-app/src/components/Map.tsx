@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { GoogleMap, Marker, InfoWindow, useLoadScript } from '@react-google-maps/api';
+import Main from './components/Main.css';
 
 interface Doctor {
     id: number;
@@ -17,8 +18,8 @@ interface Doctor {
 }
 
 const mapContainerStyle = {
-    height: '100vh',
-    width: '100%',
+    height: '50vh',
+    width: '50%',
 };
 
 const center = {
@@ -60,7 +61,7 @@ const DoctorMap: React.FC = () => {
     if (userLat === null || userLng === null) return <div>Loading...</div>;
 
     return (
-        <div style={{ height: '100vh', width: '100%' }}>
+        <div>
             <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 zoom={13}
@@ -76,7 +77,7 @@ const DoctorMap: React.FC = () => {
                 {doctors?.map((doctor) => (
                     <Marker
                         key={doctor.id}
-                        position={{ lat: parseFloat(doctor.LocationLongitude), lng: parseFloat(doctor.LocationLatitude) }}
+                        position={{ lat: parseFloat(doctor.LocationLatitude), lng: parseFloat(doctor.LocationLongitude) }}
                         onClick={() =>{ setSelectedDoctor(doctor)
 
                             console.log(selectedDoctor,"doctoor");

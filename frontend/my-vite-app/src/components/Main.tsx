@@ -6,6 +6,7 @@ import axios from 'axios';
 import "./Main.css";
 import AppointmentCalendar from './appoitment/appointmentCalender';
 import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import Map from "./Map"
 
 interface NavItem {
     label: string;
@@ -134,6 +135,7 @@ const Main: React.FC = () => {
         {/* Find A Doctor Section */}
         <div className="find-doctor">
           <h2>Find A Doctor</h2>
+          <button className="btn btn-primary" onClick={() => setShowMap(true)}>Show Map</button>
           <form onSubmit={handleSearch}>
             <input type="text" name="name" placeholder="Name" value={searchParams.name} onChange={handleChange} />
             <input type="text" name="specialization" placeholder="Specialization" value={searchParams.specialization} onChange={handleChange} />
@@ -179,6 +181,17 @@ const Main: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenBookingModal(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Map Popup */}
+      <Dialog open={showMap} onClose={() => setShowMap(false)} fullWidth maxWidth="md">
+        <DialogTitle>Map</DialogTitle>
+        <DialogContent>
+          <Map />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowMap(false)}>Close</Button>
         </DialogActions>
       </Dialog>
     </div>

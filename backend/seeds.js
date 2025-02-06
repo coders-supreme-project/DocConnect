@@ -35,6 +35,7 @@ const seedDatabase = async () => {
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
         email: faker.internet.email(),
+        Password: faker.internet.password(),
         phone: faker.phone.number(),
         specialty: faker.helpers.arrayElement(specialtyNames),
         experience: faker.number.int({ min: 1, max: 30 }),

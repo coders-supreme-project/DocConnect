@@ -4,6 +4,7 @@ import axios from 'axios';
 import "./Main.css";
 import { useNavigate } from 'react-router-dom';
 
+
 interface NavItem {
   label: string;
   href: string;
@@ -81,7 +82,7 @@ const Main: React.FC = () => {
             ))}
           </div>
           <div className="nav-buttons">
-            <button className="btn btn-outline">Sign Up</button>
+            <button className="btn btn-outline" onClick={()=>navigate("/register")}>Sign Up</button>
             <button className="btn btn-primary"onClick={()=>navigate("/login")}>Log In</button>
           </div>
         </div>

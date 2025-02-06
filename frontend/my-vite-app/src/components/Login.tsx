@@ -1,61 +1,80 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "../store/store";
-import { login } from "../store/authSlice";
-import { setEmailOrUsername, setPassword } from "../store/formSlice";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import "./Login.css"; 
+import { useDispatch } from "react-redux";
+import { login } from "../store/authSlice";
+import toast from "react-hot-toast";
+import "./login.css";
 
-const Login: React.FC = () => {
+interface LoginForm {
+  email: string;
+  password: string;
+}
+
+export default function Login() {
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>();
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const dispatch: AppDispatch = useDispatch();
-  const { loading, error } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
 
-  const [email, setEmail] = useState("");
-  const [password, setPasswordState] = useState("");
+  const onSubmit: SubmitHandler<LoginForm> = async (data) => {
+    if (!data.email.trim() || !data.password.trim()) {
+      toast.error("Email and Password are required.");
+      return;
+    }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    dispatch(setEmailOrUsername(email));
-    dispatch(setPassword(password));
+    const loginData = {
+      email: data.email.trim(),
+      password: data.password.trim(),
+    };
 
-    const loginData = { email, password };
-    dispatch(login(loginData)).then((result) => {
-      if (result.meta.requestStatus === "fulfilled") {
+    console.log("Sending login request:", JSON.stringify(loginData, null, 2));
+
+    try {
+      setIsLoading(true);
+      const result = await dispatch(login(loginData)).unwrap();
+
+      if (result.token) {
+        localStorage.setItem("token", result.token); // Store token
+        toast.success("Login successful! Redirecting...");
         navigate("/");
       }
-    });
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast.error(error.message || "Login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="login-container">
-      <h2>Login</h2>
-      {error && <p className="error-message">{error}</p>}
-      <form onSubmit={handleSubmit} className="login-form">
+      <h2 className="login-title">Login</h2>
+      <form className="login-form" onSubmit={handleSubmit(onSubmit)}>
         <input
-          type="email"
+          {...register("email", {
+            required: "Email is required",
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: "Invalid email address",
+            },
+          })}
           placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
+          type="email"
         />
+        {errors.email && <p className="error">{errors.email.message}</p>}
+
         <input
-          type="password"
+          {...register("password", { required: "Password is required" })}
           placeholder="Password"
-          value={password}
-          onChange={(e) => setPasswordState(e.target.value)}
-          required
+          type="password"
         />
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
+        {errors.password && <p className="error">{errors.password.message}</p>}
+
+        <button className="login-button" type="submit" disabled={isLoading}>
+          {isLoading ? "Logging in..." : "Login"}
         </button>
       </form>
-      <p className="register-link">
-        Don't have an account?{" "}
-        <span onClick={() => navigate("/register")}>Register here</span>
-      </p>
     </div>
   );
-};
-
-export default Login;
+}

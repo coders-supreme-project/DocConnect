@@ -5,90 +5,181 @@ const { Op } = require("sequelize");
 require("dotenv").config();
 
 // Register Doctor or Patient
+
 exports.register = async (req, res) => {
-    const {
-      FirstName,
-      LastName,
-      Username,
-      Password,
-      Email,
-      Role,
-      Speciality,
-      Bio,
-      MeetingPrice,
-      Latitude,
-      Longitude,
-    } = req.body;
-  
-    if (!Password) {
-      return res.status(400).json({ message: "Password is required" });
-    }
-  
-    if (Role !== "Doctor" && Role !== "Patient") {
-      return res.status(400).json({ message: "Invalid role. Only Doctor or Patient can register." });
-    }
-  
-    try {
-      console.log("Received Password:", Password); // Debugging step
-      const hashedPassword = await bcrypt.hash(Password.toString(), 10);
-  
-      const newUser = await db.User.create({
-        FirstName,
-        LastName,
-        Username,
-        Password: hashedPassword,
-        Email,
-        Role,
-        ...(Role === "Doctor" && { Speciality, Bio, MeetingPrice }),
-        Speciality: Role === "Doctor" ? Speciality : null,
-        Bio: Role === "Doctor" ? Bio : null,
-        MeetingPrice: Role === "Doctor" ? MeetingPrice : null,
-        LocationLatitude: Latitude,
-        LocationLongitude: Longitude,
-      });
-  
-      res.status(201).json({ message: "User registered successfully", user: newUser });
-    } catch (error) {
-      console.error("Registration error:", error);
-      res.status(500).json({ message: "Error registering user", error: error.message });
-    }
-  };
-  
-
-// Login for Admin, Doctor, and Patient
-exports.login = async (req, res) => {
-  const { Email, Password } = req.body;
-
-  if (!Email || !Password) {
-    return res.status(400).json({ message: "Email and Password are required" });
-  }
-
   try {
-    const user = await db.User.findOne({
-      where: { Email },
-    });
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      role,
+      phone,
+      specialty,
+      experience,
+      bio,
+      dateOfBirth,
+      gender,
+      address,
+      medicalHistory,
+      LocationLatitude,
+      LocationLongitude,
+    } = req.body;
+
+    if (!firstName || !lastName || !email || !password || !role || !phone) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Check if email already exists
+    const existingUser = await db.Doctor.findOne({ where: { email } }) || 
+                          await db.Patient.findOne({ where: { email } });
+
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already in use" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    let newUser;
+
+    if (role === "Doctor") {
+      if (!specialty || !experience) {
+        return res.status(400).json({ message: "Specialty and experience are required for doctors" });
+      }
+
+      newUser = await db.Doctor.create({
+        firstName,
+        lastName,
+        email,
+        Password: hashedPassword, 
+        phone,
+        specialty,
+        experience,
+        bio,
+        profilePicture: null,
+        isVerified: false,
+        LocationLatitude,
+        LocationLongitude,
+      });
+    } else if (role === "Patient") {
+      if (!dateOfBirth || !gender) {
+        return res.status(400).json({ message: "Date of birth and gender are required for patients" });
+      }
+
+      newUser = await db.Patient.create({
+        firstName,
+        lastName,
+        email,
+        Password: hashedPassword, 
+        phone,
+        dateOfBirth,
+        gender,
+        address,
+        medicalHistory,
+        profilePicture: null,
+        LocationLatitude,
+        LocationLongitude,
+      });
+    } else {
+      return res.status(400).json({ message: "Invalid role specified" });
+    }
+
+    const token = jwt.sign(
+      { id: newUser.id, role: role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.status(201).json({ message: "User registered successfully", user: newUser, token });
+  } catch (error) {
+    console.error("Registration error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+
+exports.login = async (req, res) => {
+  try {
+    console.log("Incoming request body:", req.body); // Debugging
+
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and Password are required" });
+    }
+
+    // Find user in either Doctor or Patient table
+    let user = await db.Doctor.findOne({ where: { email } }) || 
+               await db.Patient.findOne({ where: { email } });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const isMatch = await bcrypt.compare(Password, user.Password);
+    // Ensure password matches
+    const isMatch = await bcrypt.compare(password, user.Password);
     if (!isMatch) {
       return res.status(401).json({ message: "Incorrect password" });
     }
 
-    const token = jwt.sign(
-      { UserID: user.UserID, Role: user.Role, LocationLatitude: user.LocationLatitude, LocationLongitude: user.LocationLongitude },
-      process.env.JWT_SECRET,
-      { expiresIn: "10000000h" }
-    );
+    // Create user payload for JWT
+    const userPayload = {
+      id: user.id,
+      role: user.role || (user.specialty ? "Doctor" : "Patient"),
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone,
+      LocationLatitude: user.LocationLatitude || null,
+      LocationLongitude: user.LocationLongitude || null,
+    };
 
-    res.status(200).json({ message: "Login successful", token });
+    // Generate JWT token
+    const token = jwt.sign(userPayload, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+    res.status(200).json({ message: "Login successful", user: userPayload, token });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Error logging in", error: error.message });
   }
 };
+
+
+  
+
+// Login for Admin, Doctor, and Patient
+// exports.login = async (req, res) => {
+//   const { Email, Password } = req.body;
+
+//   if (!Email || !Password) {
+//     return res.status(400).json({ message: "Email and Password are required" });
+//   }
+
+//   try {
+//     const user = await db.User.findOne({
+//       where: { Email },
+//     });
+
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     const isMatch = await bcrypt.compare(Password, user.Password);
+//     if (!isMatch) {
+//       return res.status(401).json({ message: "Incorrect password" });
+//     }
+
+//     const token = jwt.sign(
+//       { UserID: user.UserID, Role: user.Role, LocationLatitude: user.LocationLatitude, LocationLongitude: user.LocationLongitude },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "10000000h" }
+//     );
+
+//     res.status(200).json({ message: "Login successful", token });
+//   } catch (error) {
+//     console.error("Login error:", error);
+//     res.status(500).json({ message: "Error logging in", error: error.message });
+//   }
+// };
 
 
 exports.session = async (req, res) => {

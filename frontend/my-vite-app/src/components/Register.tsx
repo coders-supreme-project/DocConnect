@@ -1,77 +1,129 @@
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import toast from "react-hot-toast";
-import { RegisterFormData } from "../store/formSlice";
-import { AuthResponse } from "../store/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { register as registerUser } from "../store/authSlice";
 import LocationSearch, { SearchResult } from "../components/LocationSearch";
+import "./register.css";
+import { RootState } from "../store/store";
+
+type FormData = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phone: string;
+  role: "Patient" | "Doctor";
+  specialty?: string;
+  experience?: number;
+  bio?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  address?: string;
+  medicalHistory?: string;
+};
 
 export default function Register() {
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormData>();
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<SearchResult | null>(null);
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const selectedRole = watch("role");
 
-  const onSubmit = async (data: RegisterFormData) => {
-    try {
-      setIsLoading(true);
-      
-      const requestData = {
-        FirstName: data.firstName,
-        LastName: data.lastName,
-        Username: data.username,
-        Password: data.password,
-        Email: data.email,
-        Role: data.role,
-        Speciality: data.role === "Doctor" ? data.speciality : undefined,
-        Bio: data.role === "Doctor" ? data.bio : undefined,
-        MeetingPrice: data.role === "Doctor" ? data.meetingPrice : undefined,
-        LocationLatitude: selectedLocation?.lat,
-        LocationLongitude: selectedLocation?.lon,
-      };
-      
-      const response = await axios.post<AuthResponse>("http://localhost:5000/api/users/register", requestData);
+  const [selectedLocation, setSelectedLocation] = useState<SearchResult | null>(null);
+  const { loading, error, registerSuccess } = useSelector((state: RootState) => state.auth);
 
-      if (response.data.user) {
-        toast.success("Registration successful! Please login.");
-        navigate("/login");
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Registration failed");
-    } finally {
-      setIsLoading(false);
+  const onSubmit: SubmitHandler<FormData> = (data) => {
+    if (!selectedLocation) {
+      toast.error("Please select a location.");
+      return;
     }
+
+    const requestData = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      password: data.password,
+      role: data.role,
+      phone: data.phone,
+      LocationLatitude: selectedLocation.lat,
+      LocationLongitude: selectedLocation.lon,
+      ...(data.role === "Doctor" && {
+        specialty: data.specialty,
+        experience: data.experience,
+        bio: data.bio,
+      }),
+      ...(data.role === "Patient" && {
+        dateOfBirth: data.dateOfBirth,
+        gender: data.gender,
+        address: data.address,
+        medicalHistory: data.medicalHistory,
+      }),
+    };
+
+    dispatch(registerUser(requestData) as any)
+      .unwrap()
+      .then(() => {
+        toast.success("Registration successful! Redirecting to login...");
+        navigate("/login");
+      })
+      .catch((err) => {
+        console.error("Registration error:", err);
+        toast.error(err.message || "Registration failed. Please try again.");
+      });
   };
 
   return (
-    <div className="container">
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit(onSubmit)}>
+    <div className="register-container">
+      <h2 className="register-title">Register</h2>
+      <form className="register-form" onSubmit={handleSubmit(onSubmit)}>
         <input {...register("firstName", { required: "First name is required" })} placeholder="First Name" />
+        {errors.firstName && <p className="error">{errors.firstName.message}</p>}
+
         <input {...register("lastName", { required: "Last name is required" })} placeholder="Last Name" />
-        <input {...register("username", { required: "Username is required" })} placeholder="Username" />
+        {errors.lastName && <p className="error">{errors.lastName.message}</p>}
+
         <input {...register("email", { required: "Email is required" })} placeholder="Email" type="email" />
+        {errors.email && <p className="error">{errors.email.message}</p>}
+
         <input {...register("password", { required: "Password is required" })} placeholder="Password" type="password" />
-        
+        {errors.password && <p className="error">{errors.password.message}</p>}
+
+        <input {...register("phone", { required: "Phone number is required" })} placeholder="Phone Number" />
+
         <select {...register("role", { required: "Role is required" })}>
           <option value="">Select Role</option>
           <option value="Patient">Patient</option>
           <option value="Doctor">Doctor</option>
         </select>
-        
+
         {selectedRole === "Doctor" && (
           <>
-            <input {...register("speciality", { required: "Speciality is required" })} placeholder="Speciality" />
+            <input {...register("specialty", { required: "Specialty is required" })} placeholder="Specialty" />
+            <input {...register("experience", { required: "Experience is required" })} placeholder="Experience (Years)" type="number" />
             <textarea {...register("bio")} placeholder="Bio" />
-            <input {...register("meetingPrice", { valueAsNumber: true })} placeholder="Meeting Price" type="number" />
+          </>
+        )}
+
+        {selectedRole === "Patient" && (
+          <>
+            <input {...register("dateOfBirth", { required: "Date of birth is required" })} placeholder="Date of Birth" type="date" />
+            <select {...register("gender", { required: "Gender is required" })}>
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+            <input {...register("address")} placeholder="Address" />
+            <textarea {...register("medicalHistory")} placeholder="Medical History" />
           </>
         )}
 
         <LocationSearch onSelectLocation={setSelectedLocation} />
-        
-        <button type="submit" disabled={isLoading}>{isLoading ? "Registering..." : "Register"}</button>
+
+        <button className="register-button" type="submit" disabled={loading}>
+          {loading ? "Registering..." : "Register"}
+        </button>
       </form>
     </div>
   );

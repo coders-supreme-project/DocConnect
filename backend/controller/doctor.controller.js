@@ -45,5 +45,5 @@ const searchDoctors = async (req, res) => {
 };
 
 module.exports = {
-  searchDoctors
+   searchDoctors
 };

@@ -25,7 +25,14 @@ const AppointmentCalendar = ({ DoctorID }: AppointmentCalendarProps) => {
 
     const handleDateChange = (value: Date | Date[] | [Date, Date] | null) => {
         if (value instanceof Date) {
-            const serializedDate = value.toISOString().split('T')[0];
+            // Format the date using local values to avoid timezone shifts
+            const formatDate = (date: Date): string => {
+                const yyyy = date.getFullYear();
+                const mm = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
+                const dd = String(date.getDate()).padStart(2, "0");
+                return `${yyyy}-${mm}-${dd}`;
+            };
+            const serializedDate = formatDate(value);
             setDate(value);
             dispatch(setSelectedDate(serializedDate));
 
@@ -70,7 +77,9 @@ const AppointmentCalendar = ({ DoctorID }: AppointmentCalendarProps) => {
                             <CalendarTodayIcon sx={{ verticalAlign: 'middle', mr: 1 }} />
                             Select a Date
                         </Typography>
-                        <Calendar onChange={(value) => handleDateChange(value as Date | Date[] | [Date, Date] | null)} value={date} />
+                        <Calendar onChange={(value) => {handleDateChange(value as Date | Date[] | [Date, Date] | null)
+                                                console.log(value,"date","index")
+                                            } }value={date} />
                     </Card>
                 </Grid>
                 <Grid item xs={12} md={6}>

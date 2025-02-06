@@ -15,7 +15,7 @@ App.use(cors());
 App.use(express.json())
 App.use(express.urlencoded({ extended: true }));
 
-// App.use("/api/users", authRoutes);
+App.use("/api/users", authRoutes);
 
 App.use('/api/doctor', doctorRoutes);
 App.use('/api/appointment',appointment);

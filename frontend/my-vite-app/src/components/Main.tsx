@@ -5,7 +5,7 @@ import TimeSlotSelector from './appoitment/timeSelector';
 import axios from 'axios';
 import "./Main.css";
 import AppointmentCalendar from './appoitment/appointmentCalender';
-import { Typography } from '@mui/material';
+import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 
 interface NavItem {
   label: string;
@@ -27,6 +27,7 @@ interface Doctor {
 }
 
 const Main: React.FC = () => {
+  const navigate = useNavigate();
   const navItems: NavItem[] = [
     { label: 'Home', href: '#' },
     { label: 'Service', href: '#' },
@@ -34,8 +35,9 @@ const Main: React.FC = () => {
     { label: 'Help', href: '#' },
     { label: 'Blogs', href: '#' },
   ];
-  const navigate=useNavigate()
-const DoctorID:number=2
+
+  const DoctorID:number = 2;
+  const [openBookingModal, setOpenBookingModal] = useState(false);
   const [searchParams, setSearchParams] = useState({
     name: '',
     specialization: '',
@@ -45,7 +47,6 @@ const DoctorID:number=2
     availableTime: ''
   });
   const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchParams({
@@ -68,10 +69,6 @@ const DoctorID:number=2
     }
   };
 
-  const handleDoctorSelect = (doctor: Doctor) => {
-    setSelectedDoctor(doctor);
-  };
-
   return (
     <div>
       {/* Navigation */}
@@ -88,8 +85,9 @@ const DoctorID:number=2
             ))}
           </div>
           <div className="nav-buttons">
-            <button className="btn btn-outline">Sign Up</button>
-            <button className="btn btn-primary" onClick={()=>{navigate('/login')}}>Log In</button>
+            <button className="btn btn-outline" onClick={()=>navigate("/register")}>Sign Up</button>
+            <button className="btn btn-primary"onClick={()=>navigate("/login")}>Log In</button>
+          
           </div>
         </div>
       </nav>
@@ -111,7 +109,7 @@ const DoctorID:number=2
               In The Healthcare Industry
             </p>
             <div className="hero-buttons">
-              <button className="btn btn-primary">Appointments</button>
+              <button className="btn btn-primary" onClick={() => setOpenBookingModal(true)}>Book Appointment</button>
               <button className="watch-btn">
                 <Play size={20} />
                 <span>Watch Video</span>
@@ -132,18 +130,6 @@ const DoctorID:number=2
           </div>
         </div>
 
-        {/* Move appointment section here, right after hero */}
-        <div className="appointment-section">
-          <Typography variant="h4" gutterBottom>
-            Book an Appointment
-          </Typography>
-          <AppointmentCalendar DoctorID={DoctorID} />
-          <TimeSlotSelector 
-            doctorId={DoctorID.toString()}
-            patientId="123"
-          />
-        </div>
-
         {/* Find A Doctor Section */}
         <div className="find-doctor">
           <h2>Find A Doctor</h2>
@@ -154,9 +140,9 @@ const DoctorID:number=2
             <input type="text" name="zipCode" placeholder="Zip Code" value={searchParams.zipCode} onChange={handleChange} />
             <input type="date" name="availableDate" value={searchParams.availableDate} onChange={handleChange} />
             <input type="time" name="availableTime" value={searchParams.availableTime} onChange={handleChange} />
-            <button type="submit" className="btn btn-primary search-btn">
-              <Search size={20} />
-              <span>Search</span>
+            <button type="submit" className="btn btn-sm btn-primary search-btn px-2 py-1 text-sm">
+              <Search size={16} /> {/* Reduced icon size */}
+              <span className="ml-1">Search</span> {/* Adjusted spacing */}
             </button>
           </form>
           
@@ -175,17 +161,25 @@ const DoctorID:number=2
                     </li>
                   ))}
                 </ul>
-                <button 
-                  className="btn btn-primary"
-                  onClick={() => handleDoctorSelect(doctor)}
-                >
-                  Select Doctor
-                </button>
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      <Dialog open={openBookingModal} onClose={() => setOpenBookingModal(false)} fullWidth maxWidth="md">
+        <DialogTitle>Book an Appointment</DialogTitle>
+        <DialogContent>
+          <AppointmentCalendar DoctorID={DoctorID} />
+          <TimeSlotSelector 
+            doctorId={DoctorID.toString()} 
+            patientId="123" 
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenBookingModal(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

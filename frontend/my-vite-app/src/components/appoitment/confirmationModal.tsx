@@ -23,7 +23,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                         <EventIcon sx={{ mr: 1, color: 'primary.main' }} />
                         <Typography variant="body1">
-                            Date: {new Date().toLocaleDateString()}
+                            Date: {appointmentDetails.date}
                         </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>

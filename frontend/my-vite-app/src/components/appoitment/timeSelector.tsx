@@ -6,6 +6,7 @@ import { Button, Typography, Grid, Snackbar, Box } from '@mui/material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import ConfirmationModal from './confirmationModal';
 import { TimeSlotSelectorProps } from '../types/types';
+import { RootState } from '../../store/store'; // or wherever your RootState is defined
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -16,6 +17,8 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 
 const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({ doctorId, patientId }) => {
     const dispatch = useDispatch();
+    const selectedDateString = useSelector((state: RootState) => state.appointment.selectedDate);
+    const selectedDate = selectedDateString ? new Date(selectedDateString) : new Date();
     const availableSlots = ['09:00', '10:00', '11:00', '14:00', '15:00']; // Example slots
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -33,7 +36,7 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({ doctorId, patientId
             const response = await axios.post('/api/appointments', {
                 doctorId,
                 patientId,
-                appointmentDate: new Date(),
+                appointmentDate: selectedDate,
                 startTime: selectedSlot
             });
             if (response.status === 201) {
@@ -89,7 +92,7 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({ doctorId, patientId
                     doctorId,
                     patientId,
                     slot: selectedSlot,
-                    date: new Date().toLocaleDateString()
+                    date: selectedDate.toLocaleDateString()
                 }}
             />
         </Box>

@@ -4,8 +4,7 @@ import Main from './components/Main';
 // // import AppointmentForm from './components/appoitment/appointment'; // Correct path for 'appointment'
 // import AppointmentDetail from './components/appoitment/appointmentDetail'; // Correct path for 'appointment'
 import Login from './components/Login';
-
-
+import Register from './components/Register';
 function App() {
   return (
     <BrowserRouter>
@@ -17,9 +16,10 @@ function App() {
         <Route path="/appointments/:id" element={<AppointmentDetail />} /> */}
       {/* <Route path='/' element={<Main/>} /> */}
       <Route path='/login' element={<Login/>} />
-      </Routes>
-    </BrowserRouter>
-  );
+      <Route path='/register' element={<Register/>}/>
+    </Routes>
+     </BrowserRouter>
+  )
 }
 
 export default App;

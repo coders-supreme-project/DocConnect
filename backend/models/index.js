@@ -87,7 +87,7 @@ db.Doctor.hasMany(db.Availability, { foreignKey: 'DoctorID', as: 'Availabilities
 db.Availability.belongsTo(db.Doctor, { foreignKey: 'DoctorID', as: 'Doctor' });
 
 // Sync the database (uncomment only when necessary)
-// connection.sync({ alter: true })
+// connection.sync({ force: true })
 //     .then(() => console.log("✅ Database synced"))
 //     .catch((err) => console.error("❌ Error syncing database:", err));
 

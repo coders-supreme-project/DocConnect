@@ -57,6 +57,10 @@ module.exports = (sequelize) => {
             type: DataTypes.DECIMAL(9, 6),
             allowNull: true,
           },
+          Password: {
+            type: DataTypes.STRING(255),
+            allowNull: false,
+          },
     }, {
         timestamps: true
     });

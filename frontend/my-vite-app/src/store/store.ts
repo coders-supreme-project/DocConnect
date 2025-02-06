@@ -1,19 +1,28 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../store/authSlice";
 import formReducer from "../store/formSlice";
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import userLocationReducer from "./userLocation"
+
+// Define the type for the appointment slice state
+interface AppointmentState {
+    selectedDate: string;
+    availableSlots: string[];
+}
+
+const initialAppointmentState: AppointmentState = {
+    selectedDate: '',
+    availableSlots: [],
+};
 
 const appointmentSlice = createSlice({
     name: 'appointment',
-    initialState: {
-        selectedDate: '',
-        availableSlots: [],
-    },
+    initialState: initialAppointmentState,
     reducers: {
-        setSelectedDate: (state, action) => {
+        setSelectedDate: (state, action: PayloadAction<string>) => {
             state.selectedDate = action.payload;
         },
-        setAvailableSlots: (state, action) => {
+        setAvailableSlots: (state, action: PayloadAction<string[]>) => {
             state.availableSlots = action.payload;
         },
     },
@@ -24,6 +33,7 @@ const store = configureStore({
     auth: authReducer,
     form: formReducer,
     appointment: appointmentSlice.reducer,
+    userLocation: userLocationReducer,
   },
 });
 

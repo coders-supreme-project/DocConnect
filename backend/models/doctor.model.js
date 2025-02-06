@@ -23,6 +23,10 @@ module.exports = (sequelize) => {
                 isEmail: true
             }
         },
+        Password: {
+            type: DataTypes.STRING(255),
+            allowNull: false,
+          },
         phone: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -49,6 +53,7 @@ module.exports = (sequelize) => {
             type: DataTypes.BOOLEAN,
             defaultValue: false
         },
+        
         LocationLatitude: {
             type: DataTypes.DECIMAL(9, 6),
             allowNull: true,

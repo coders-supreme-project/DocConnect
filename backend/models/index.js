@@ -82,11 +82,40 @@ db.ChatroomMessage.belongsTo(db.User, { foreignKey: 'SenderID', as: 'Sender' });
 db.User.hasMany(db.Availability, { foreignKey: 'DoctorID', as: 'Availabilities' });
 db.Availability.belongsTo(db.User, { foreignKey: 'DoctorID', as: 'Doctor' });
 
-
+db.Doctor.hasMany(db.Availability, { foreignKey: 'DoctorID', as: 'Availabilities' });
+db.Availability.belongsTo(db.Doctor, { foreignKey: 'DoctorID', as: 'DoctorAv' });
 
 db.Patient.hasOne(db.Media, { foreignKey: 'patientId', as: 'ProfilePicture' });
 db.Doctor.hasOne(db.Media, { foreignKey: 'doctorId', as: 'ProfilePicture' });
 db.Media.belongsTo(db.Doctor, { foreignKey: 'doctorId', as: 'Doctor' });
+
+// db.User.hasMany(db.DoctorReview, { foreignKey: 'PatientID', as: 'PatientReviews' });
+// db.DoctorReview.belongsTo(db.User, { foreignKey: 'PatientID', as: 'Patient' });
+
+// db.User.hasMany(db.DoctorReview, { foreignKey: 'DoctorID', as: 'DoctorReviews' });
+// db.DoctorReview.belongsTo(db.User, { foreignKey: 'DoctorID', as: 'ReviewedDoctor' });
+
+// // ✅ One-to-Many: Chatrooms
+// db.User.hasMany(db.Chatrooms, { foreignKey: 'PatientID', as: 'PatientChatrooms' });
+// db.Chatrooms.belongsTo(db.User, { foreignKey: 'PatientID', as: 'Patient' });
+
+// db.User.hasMany(db.Chatrooms, { foreignKey: 'DoctorID', as: 'DoctorChatrooms' });
+// db.Chatrooms.belongsTo(db.User, { foreignKey: 'DoctorID', as: 'ChatroomDoctor' });
+
+// // ✅ One-to-Many: Chatroom Messages
+// db.Chatrooms.hasMany(db.ChatroomMessage, { foreignKey: 'ChatroomID', as: 'Messages' });
+// db.ChatroomMessage.belongsTo(db.Chatrooms, { foreignKey: 'ChatroomID', as: 'Chatroom' });
+
+// db.User.hasMany(db.ChatroomMessage, { foreignKey: 'SenderID', as: 'SentMessages' });
+// db.ChatroomMessage.belongsTo(db.User, { foreignKey: 'SenderID', as: 'Sender' });
+
+// // ✅ One-to-Many: Doctor Availability
+// db.Doctor.hasMany(db.Availability, { foreignKey: 'DoctorID', as: 'Availabilities' });
+// db.Availability.belongsTo(db.Doctor, { foreignKey: 'DoctorID', as: 'Doctor' });
+
+// db.Patient.hasOne(db.Media, { foreignKey: 'patientId', as: 'ProfilePicture' });
+// db.Doctor.hasOne(db.Media, { foreignKey: 'doctorId', as: 'DoctorProfilePicture' });
+// db.Media.belongsTo(db.Doctor, { foreignKey: 'doctorId', as: 'DoctorProfile' });
 
 // connection.sync({ alter: true })
 //     .then(() => console.log("Database synced"))

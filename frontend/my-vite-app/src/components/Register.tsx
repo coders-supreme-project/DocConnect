@@ -31,7 +31,7 @@ export default function Register() {
   const selectedRole = watch("role");
 
   const [selectedLocation, setSelectedLocation] = useState<SearchResult | null>(null);
-  const { loading, error, registerSuccess } = useSelector((state: RootState) => state.auth);
+  const { loading } = useSelector((state: RootState) => state.auth);
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
     if (!selectedLocation) {
@@ -40,6 +40,7 @@ export default function Register() {
     }
 
     const requestData = {
+      username: `${data.firstName}${data.lastName}`.toLowerCase(),
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
@@ -67,7 +68,7 @@ export default function Register() {
         toast.success("Registration successful! Redirecting to login...");
         navigate("/login");
       })
-      .catch((err) => {
+      .catch((err: Error) => {
         console.error("Registration error:", err);
         toast.error(err.message || "Registration failed. Please try again.");
       });

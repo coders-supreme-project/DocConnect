@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../store/authSlice";
+import { AppDispatch } from "../store/store";
 import toast from "react-hot-toast";
 import "./login.css";
 
@@ -15,7 +16,7 @@ export default function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const onSubmit: SubmitHandler<LoginForm> = async (data) => {
     if (!data.email.trim() || !data.password.trim()) {

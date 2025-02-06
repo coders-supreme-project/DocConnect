@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Bell, Calendar, Settings, MessageSquare, LayoutGrid, LogOut, Heart, Thermometer, Wind } from 'lucide-react';
-// import type { Patient, ConsultationDetails } from './types';
+import { Bell, Calendar, Settings, MessageSquare, LayoutGrid, LogOut, Heart, Thermometer, Wind, TrendingUp, TrendingDown } from 'lucide-react';
+import type { Patient, ConsultationDetails } from "./types";
 
 const mockPatients: Patient[] = [
   { id: '1', name: 'Stacy Mitchell', initials: 'SM', visitType: 'Weekly Visit', time: '9:15 AM' },
@@ -188,6 +188,16 @@ function App() {
             </div>
           </div>
         </div>
+
+        {/* Render selected patient details if available */}
+        {selectedPatient && (
+          <div className="selected-patient-details">
+            <h2>Selected Patient</h2>
+            <p>Name: {selectedPatient.name}</p>
+            <p>Visit Type: {selectedPatient.visitType}</p>
+            <p>Appointment Time: {selectedPatient.time}</p>
+          </div>
+        )}
       </main>
     </div>
   );

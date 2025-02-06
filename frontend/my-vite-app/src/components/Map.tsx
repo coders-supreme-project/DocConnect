@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { GoogleMap, Marker, InfoWindow, useLoadScript } from '@react-google-maps/api';
-import Main from './components/Main.css';
 
 interface Doctor {
     id: number;

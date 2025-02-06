@@ -51,6 +51,7 @@ const seedDatabase = async () => {
         firstName: faker.person.firstName(),
         lastName: faker.person.lastName(),
         email: faker.internet.email(),
+        Password: faker.internet.password(),
         phone: faker.phone.number(),
         specialty: faker.helpers.arrayElement(["Cardiology", "Dermatology", "Neurology"]),
         experience: faker.number.int({ min: 1, max: 20 }),
@@ -77,6 +78,8 @@ const seedDatabase = async () => {
         specialist: faker.helpers.arrayElement(["General Medicine", "Rehabilitation", "Psychology"]),
         LocationLatitude: patientCoordinates.latitude,
         LocationLongitude: patientCoordinates.longitude,
+        Password: faker.internet.password(),
+
       }));
     }
 

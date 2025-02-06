@@ -1,16 +1,38 @@
 const express = require("express");
-const cors = require("cors");
-const authRoutes = require("./Routes/user.routes");
+// const { sequelize } = require("./models");
+const cors = require("cors")
+const doctorRoutes = require("./Routes/doctor.routes");
+const App = express();
 
-const app = express();
+const db=require("../backend/models/index")
+const authRoutes = require('./Routes/user.routes')
+const appointment=require("./Routes/appointment.routes")
+const availabilities=require("./Routes/availibility.routes")
+// const appointment=require("./Routes")
+
 const port = process.env.PORT || 5000;
-const bodyParser = require("body-parser");
-app.use(cors());
-app.use(express.json()); // Enables JSON body parsing
-app.use(express.urlencoded({ extended: true })); // Parses URL-encoded data
+App.use(cors());
+App.use(express.json())
+App.use(express.urlencoded({ extended: true }));
 
-app.use("/api/users", authRoutes);
+App.use("/api/users", authRoutes);
 
-app.listen(port, () => {
-  console.log(`Server running at http://127.0.0.1:${port}`);
+App.use('/api/doctor', doctorRoutes);
+App.use('/api/appointment',appointment);
+App.use("/api/availability",availabilities);
+// App.use("/", );
+// App.use("/", );
+// App.use("/", );
+// App.use("/" )
+
+// App.use("/", );
+// // App.use("//patient", userRoutes);
+
+
+// // App.use("//patient", testRoutes);
+// App.use('/', );
+// App.use('/', );
+
+App.listen(port, () => {
+  console.log(`app listening on http://127.0.0.1:${port}`);
 });

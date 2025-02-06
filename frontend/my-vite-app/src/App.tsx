@@ -5,6 +5,8 @@ import Main from './components/Main';
 // import AppointmentDetail from './components/appoitment/appointmentDetail'; // Correct path for 'appointment'
 import Login from './components/Login';
 import Register from './components/Register';
+import Dashboard from "./components/doctors/Dashboard"
+import ProfileDoctor from "./components/doctors/ProfileDoctor"
 function App() {
   return (
     <BrowserRouter>
@@ -17,6 +19,8 @@ function App() {
       {/* <Route path='/' element={<Main/>} /> */}
       <Route path='/login' element={<Login/>} />
       <Route path='/register' element={<Register/>}/>
+      <Route path="/dashboard" element={<Dashboard/>}/>
+      <Route path="/profile" element={<ProfileDoctor/>}/>
     </Routes>
      </BrowserRouter>
   )

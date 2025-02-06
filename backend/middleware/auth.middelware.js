@@ -48,4 +48,4 @@ const isPatient = (req, res, next) => {
 
 module.exports = {  isAdmin, isDoctor, isPatient ,authenticate}
 
-module.exports = {  isAdmin, isDoctor, isPatient,authenticate };
+

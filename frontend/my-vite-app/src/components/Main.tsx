@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Play, Search, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import TimeSlotSelector from './appoitment/timeSelector';
 import axios from 'axios';
 import "./Main.css";
-import { useNavigate } from 'react-router-dom';
-
+import AppointmentCalendar from './appoitment/appointmentCalender';
+import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 
 interface NavItem {
   label: string;
   href: string;
 }
-
 interface Doctor {
   id: number;
   firstName: string;
@@ -35,6 +36,8 @@ const Main: React.FC = () => {
     { label: 'Blogs', href: '#' },
   ];
 
+  const DoctorID:number = 2;
+  const [openBookingModal, setOpenBookingModal] = useState(false);
   const [searchParams, setSearchParams] = useState({
     name: '',
     specialization: '',
@@ -84,6 +87,7 @@ const Main: React.FC = () => {
           <div className="nav-buttons">
             <button className="btn btn-outline" onClick={()=>navigate("/register")}>Sign Up</button>
             <button className="btn btn-primary"onClick={()=>navigate("/login")}>Log In</button>
+          
           </div>
         </div>
       </nav>
@@ -105,7 +109,7 @@ const Main: React.FC = () => {
               In The Healthcare Industry
             </p>
             <div className="hero-buttons">
-              <button className="btn btn-primary">Appointments</button>
+              <button className="btn btn-primary" onClick={() => setOpenBookingModal(true)}>Book Appointment</button>
               <button className="watch-btn">
                 <Play size={20} />
                 <span>Watch Video</span>
@@ -141,6 +145,7 @@ const Main: React.FC = () => {
               <span className="ml-1">Search</span> {/* Adjusted spacing */}
             </button>
           </form>
+          
           <div className="search-results">
             {doctors?.map(doctor => (
               <div key={doctor.id} className="doctor-profile">
@@ -161,6 +166,20 @@ const Main: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={openBookingModal} onClose={() => setOpenBookingModal(false)} fullWidth maxWidth="md">
+        <DialogTitle>Book an Appointment</DialogTitle>
+        <DialogContent>
+          <AppointmentCalendar DoctorID={DoctorID} />
+          <TimeSlotSelector 
+            doctorId={DoctorID.toString()} 
+            patientId="123" 
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenBookingModal(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

@@ -37,7 +37,13 @@ export default function Login() {
       if (result.token) {
         localStorage.setItem("token", result.token); // Store token
         toast.success("Login successful! Redirecting...");
-        navigate("/");
+
+        // Navigate based on user role
+        if (result.user.role === "Doctor") {
+          navigate("/dashboard");
+        } else {
+          navigate("/");
+        }
       }
     } catch (error: any) {
       console.error("Login error:", error);

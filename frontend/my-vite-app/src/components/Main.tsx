@@ -143,9 +143,9 @@ const Main: React.FC = () => {
             <input type="text" name="zipCode" placeholder="Zip Code" value={searchParams.zipCode} onChange={handleChange} />
             <input type="date" name="availableDate" value={searchParams.availableDate} onChange={handleChange} />
             <input type="time" name="availableTime" value={searchParams.availableTime} onChange={handleChange} />
-            <button type="submit" className="btn btn-sm btn-primary search-btn px-2 py-1 text-sm">
-              <Search size={16} /> {/* Reduced icon size */}
-              <span className="ml-1">Search</span> {/* Adjusted spacing */}
+            <button type="submit" className="btn btn-sm btn-primary search-btn px-1 py-0.5 text-sm">
+              <Search size={14} /> {/* Further reduced icon size */}
+              <span className="ml-0.5">Search</span> {/* Further reduced spacing */}
             </button>
           </form>
           

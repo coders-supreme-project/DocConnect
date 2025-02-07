@@ -100,48 +100,44 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    console.log("Incoming request body:", req.body); // Debugging
-
     const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and Password are required" });
-    }
 
     // Find user in either Doctor or Patient table
-    let user = await db.Doctor.findOne({ where: { email } }) || 
-               await db.Patient.findOne({ where: { email } });
+    let user = await db.Doctor.findOne({ where: { email } }) || await db.Patient.findOne({ where: { email } });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Ensure password matches
+    // Verify password
     const isMatch = await bcrypt.compare(password, user.Password);
     if (!isMatch) {
       return res.status(401).json({ message: "Incorrect password" });
     }
 
-    // Create user payload for JWT
+    // Determine the user's role based on which table the user was found in
+    const role = user.specialty ? "Doctor" : "Patient";  // Doctors have a 'specialty' field, patients don't
+
+    // Prepare the user data and role to be included in the JWT payload
     const userPayload = {
       id: user.id,
-      role: user.role || (user.specialty ? "Doctor" : "Patient"),
+      role,  // Include the user's role
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      phone: user.phone,
-      LocationLatitude: user.LocationLatitude || null,
-      LocationLongitude: user.LocationLongitude || null,
+      phone: user.phone
     };
 
-    // Generate JWT token
+    // Generate the JWT token that includes the user and role
     const token = jwt.sign(userPayload, process.env.JWT_SECRET, { expiresIn: "7d" });
 
+    // Send the token and user information back to the client
     res.status(200).json({ message: "Login successful", user: userPayload, token });
   } catch (error) {
-    console.error("Login error:", error);
     res.status(500).json({ message: "Error logging in", error: error.message });
   }
 };
+
 
 
   

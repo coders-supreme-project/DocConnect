@@ -9,6 +9,8 @@ export interface AuthResponse {
     Role: "Doctor" | "Patient";
     LocationLatitude?: number;
     LocationLongitude?: number;
+    Username?: string; // Add Username to the user object
+    FirstName?: string; // Add FirstName to the user object
   };
 }
 
@@ -80,6 +82,10 @@ const authSlice = createSlice({
       state.token = null;
       state.user = undefined;
       localStorage.removeItem("token");
+      localStorage.removeItem("role"); // Clear role from localStorage
+      localStorage.removeItem("userId"); // Clear userId from localStorage
+      localStorage.removeItem("username"); // Clear username from localStorage
+      localStorage.removeItem("firstName"); // Clear firstName from localStorage
     },
     resetRegisterSuccess: (state) => {
       state.registerSuccess = false;
@@ -95,7 +101,21 @@ const authSlice = createSlice({
         state.loading = false;
         state.token = action.payload.token || null;
         state.user = action.payload.user;
-        localStorage.setItem("token", action.payload.token || "");
+
+        // Store token, role, userId, username, and firstName in localStorage
+        if (action.payload.token) {
+          localStorage.setItem("token", action.payload.token);
+        }
+        if (action.payload.user) {
+          localStorage.setItem("role", action.payload.user.Role);
+          localStorage.setItem("userId", action.payload.user.UserID.toString());
+          if (action.payload.user.Username) {
+            localStorage.setItem("username", action.payload.user.Username);
+          }
+          if (action.payload.user.FirstName) {
+            localStorage.setItem("firstName", action.payload.user.FirstName);
+          }
+        }
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;

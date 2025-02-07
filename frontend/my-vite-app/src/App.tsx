@@ -7,10 +7,11 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from "./components/doctors/Dashboard"
 import ProfileDoctor from "./components/doctors/ProfileDoctor"
+import ChatRooms from "./components/ChatRooms";
 function App() {
   return (
     <BrowserRouter>
-      <h1>Appointment Management</h1> {/* Moved title outside of Routes */}
+      {/* <h1>Appointment Management</h1> Moved title outside of Routes */}
       <Routes>
         <Route path="/" element={<Main />} />
         {/* <Route path="/appointments" element={<AppointmentList />} />
@@ -21,6 +22,7 @@ function App() {
       <Route path='/register' element={<Register/>}/>
       <Route path="/dashboard" element={<Dashboard/>}/>
       <Route path="/profile" element={<ProfileDoctor/>}/>
+      <Route path="/chat" element={<ChatRooms/>}/>
     </Routes>
      </BrowserRouter>
   )

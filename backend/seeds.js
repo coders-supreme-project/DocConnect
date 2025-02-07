@@ -1,6 +1,17 @@
 const { faker } = require('@faker-js/faker');
 const db = require("./models/index");
 
+const generateRandomCoordinates = () => {
+  const baseLat = 36.8939;
+  const baseLon = 10.1871;
+  const latRange = 0.09;
+  const lonRange = 0.09;
+  return {
+    LocationLatitude: parseFloat((baseLat + faker.number.float({ min: -latRange, max: latRange })).toFixed(6)),
+    LocationLongitude: parseFloat((baseLon + faker.number.float({ min: -lonRange, max: lonRange })).toFixed(6))
+  };
+};
+
 const seedDatabase = async () => {
   try {
     await db.connection.sync({ force: true });
@@ -41,7 +52,7 @@ const seedDatabase = async () => {
         experience: faker.number.int({ min: 1, max: 30 }),
         bio: faker.lorem.paragraph(),
         isVerified: faker.datatype.boolean(),
-        Password: faker.internet.password(), // Added password field
+        ...generateRandomCoordinates()
       }));
     }
 
@@ -55,7 +66,8 @@ const seedDatabase = async () => {
         phone: faker.phone.number(),
         dateOfBirth: faker.date.birthdate(),
         gender: faker.helpers.arrayElement(["Male", "Female", "Other"]),
-        Password: faker.internet.password(), // Added password field
+        Password: faker.internet.password(),
+        ...generateRandomCoordinates()
       }));
     }
 

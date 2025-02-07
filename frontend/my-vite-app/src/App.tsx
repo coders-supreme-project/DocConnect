@@ -7,6 +7,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from "./components/doctors/Dashboard"
 import ProfileDoctor from "./components/doctors/ProfileDoctor"
+import PatientVideoCall from "./components/PatientVedioCall";
 function App() {
   return (
     <BrowserRouter>
@@ -21,6 +22,8 @@ function App() {
       <Route path='/register' element={<Register/>}/>
       <Route path="/dashboard" element={<Dashboard/>}/>
       <Route path="/profile" element={<ProfileDoctor/>}/>
+      <Route path="/book" element={<PatientVideoCall/>}/>
+
     </Routes>
      </BrowserRouter>
   )

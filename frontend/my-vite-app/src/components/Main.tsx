@@ -7,6 +7,7 @@ import "./Main.css";
 import AppointmentCalendar from './appoitment/appointmentCalender';
 import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import Map from "./Map"
+import PatientVideoCall from './PatientVedioCall';
 
 interface NavItem {
     label: string;
@@ -49,7 +50,7 @@ const Main: React.FC = () => {
     availableTime: ''
   });
   const [doctors, setDoctors] = useState<Doctor[]>([]);
-
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchParams({
       ...searchParams,
@@ -93,7 +94,6 @@ const Main: React.FC = () => {
           </div>
         </div>
       </nav>
-
       {/* Hero Section */}
       <div className="hero">
         <div className="hero-grid">
@@ -131,7 +131,7 @@ const Main: React.FC = () => {
             </div>
           </div>
         </div>
-
+             <button onClick={()=>navigate("/book")}>Consultation a distance </button>
         {/* Find A Doctor Section */}
         <div className="find-doctor">
           <h2>Find A Doctor</h2>
@@ -183,7 +183,7 @@ const Main: React.FC = () => {
           <Button onClick={() => setOpenBookingModal(false)}>Close</Button>
         </DialogActions>
       </Dialog>
-
+        
       {/* Map Popup */}
       <Dialog open={showMap} onClose={() => setShowMap(false)} fullWidth maxWidth="md">
         <DialogTitle>Map</DialogTitle>

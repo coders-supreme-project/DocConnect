@@ -71,6 +71,10 @@ const Main: React.FC = () => {
     }
   };
 
+  const handleDoctorClick = (id: number) => {
+    navigate(`/doctor/${id}`);
+  };
+
   return (
     <div>
       {/* Navigation */}
@@ -151,7 +155,7 @@ const Main: React.FC = () => {
           
           <div className="search-results">
             {doctors?.map(doctor => (
-              <div key={doctor.id} className="doctor-profile">
+              <div key={doctor.id} className="doctor-profile" onClick={() => handleDoctorClick(doctor.id)} >
                 <h3>{doctor.firstName} {doctor.lastName}</h3>
                 <p>Specialty: {doctor.specialty}</p>
                 <p>Experience: {doctor.experience} years</p>

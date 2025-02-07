@@ -66,6 +66,7 @@ module.exports = (sequelize) => {
     {
         timestamps: true
     });
+    
 
     return Doctor;
 };

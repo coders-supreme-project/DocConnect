@@ -79,5 +79,35 @@ searchDoctors : async (req, res) => {
         console.error("Error fetching nearest doctors:", error);
         res.status(500).json({ error: "Internal server error" });
     }
-}
-}
+},
+
+
+  getDoctorById: async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      const doctor = await db.Doctor.findOne({
+        where: { id },
+        include: [
+          {
+            model: db.Availability,
+            as: 'Availabilities',
+            attributes: ['availableDate', 'startTime', 'endTime']
+          }
+        ],
+        attributes: ['id', 'firstName', 'lastName', 'specialty', 'experience', 'bio']
+      });
+
+      if (!doctor) {
+        return res.status(404).json({ error: 'Doctor not found' });
+      }
+
+      res.status(200).json(doctor);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  
+};
+

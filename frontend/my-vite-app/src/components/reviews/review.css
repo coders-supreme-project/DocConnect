@@ -1,0 +1,152 @@
+/* Review Section Styles */
+.reviews-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e2e8f0;
+  }
+  
+  .reviews-section h2 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+  }
+  
+  .review {
+    background: var(--background-color);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .review-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .star-rating {
+    display: inline-flex;
+    gap: 0.25rem;
+  }
+  
+  .star {
+    color: #d1d5db;
+    font-size: 1.25rem;
+  }
+  
+  .star.filled {
+    color: #fbbf24;
+  }
+  
+  .review-date {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-left: auto;
+  }
+  
+  .review-comment {
+    color: var(--text-primary);
+    line-height: 1.6;
+  }
+  
+  /* Review Form Styles */
+  .review-form {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    margin-top: 2rem;
+  }
+  
+  .review-form h3 {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+  
+  .star-input {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .star-input button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #d1d5db;
+    transition: color 0.2s ease;
+  }
+  
+  .star-input button:hover,
+  .star-input button.active {
+    color: #fbbf24;
+  }
+  
+  .comment-input {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    resize: vertical;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+  }
+  
+  .comment-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+  
+  .submit-review {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .submit-review:hover {
+    background: var(--primary-dark);
+  }
+  
+  .submit-review:disabled {
+    background: var(--secondary-color);
+    cursor: not-allowed;
+  }
+  
+  /* Star Animation */
+  @keyframes star-pop {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  .star-input button:active {
+    animation: star-pop 0.2s ease;
+  }

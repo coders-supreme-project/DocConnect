@@ -27,6 +27,7 @@ db.Availability = require('./availability.model')(connection, DataTypes);
 db.Specialty = require('./speciality.model')(connection, DataTypes);
 db.Doctor = require("./doctor.model")(connection, DataTypes);
 db.Patient = require("./patient.model")(connection, DataTypes);
+// db.Review=require("./review.model")(connection,DataTypes);
 
 // ==================== Associations ==================== //
 
@@ -59,13 +60,14 @@ db.User.hasMany(db.Appointment, { foreignKey: 'PatientID', as: 'PatientAppointme
 db.Appointment.belongsTo(db.User, { foreignKey: 'PatientID', as: 'Patient' });
 
 db.User.hasMany(db.Appointment, { foreignKey: 'DoctorID', as: 'DoctorAppointments' });
-db.Appointment.belongsTo(db.User, { foreignKey: 'DoctorID', as: 'Doctor' });
+db.Appointment.belongsTo(db.User, { foreignKey: 'PatientID', as: 'patient' });
 
 // ✅ One-to-Many: Doctor Reviews
-db.User.hasMany(db.DoctorReview, { foreignKey: 'PatientID', as: 'PatientReviews' });
-db.DoctorReview.belongsTo(db.User, { foreignKey: 'PatientID', as: 'Patient' });
+db.User.hasMany(db.DoctorReview, { foreignKey: 'DoctorID', as: 'reviews' });
+db.DoctorReview.belongsTo(db.User, { foreignKey: 'PatientID', as: 'patient' });
+db.DoctorReview.belongsTo(db.Doctor, { foreignKey: 'DoctorID', as: 'doctor'});
 
-db.User.hasMany(db.DoctorReview, { foreignKey: 'DoctorID', as: 'DoctorReviews' });
+db.Doctor.hasMany(db.DoctorReview, { foreignKey: 'DoctorID', as: 'DoctorReviews' });
 db.DoctorReview.belongsTo(db.User, { foreignKey: 'DoctorID', as: 'ReviewedDoctor' });
 
 // ✅ One-to-Many: Chatrooms
@@ -86,8 +88,12 @@ db.ChatroomMessage.belongsTo(db.User, { foreignKey: 'SenderID', as: 'Sender' });
 db.Doctor.hasMany(db.Availability, { foreignKey: 'DoctorID', as: 'Availabilities' });
 db.Availability.belongsTo(db.Doctor, { foreignKey: 'DoctorID', as: 'Doctor' });
 
+// ✅ One-to-Many: Doctor Reviews
+//    db. Doctor.hasMany(db.Review, { foreignKey: 'doctorId', as: 'reviews',});
+//    db. Review.belongsTo(db.Doctor, { foreignKey: 'doctorId', as: 'Doctor',});
+
 // Sync the database (uncomment only when necessary)
-// connection.sync({ force: true })
+// connection.sync({ alter: true })
 //     .then(() => console.log("✅ Database synced"))
 //     .catch((err) => console.error("❌ Error syncing database:", err));
 

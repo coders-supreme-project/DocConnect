@@ -5,14 +5,29 @@ import Modal from 'react-modal';
 import ReviewForm from './reviews/reviewForm';
 import './Main.css';
 
-const DoctorDetails = () => {
-  const { id } = useParams();
+interface Doctor {
+  id: number;
+  firstName: string;
+  lastName: string;
+  specialty: string;
+  experience: number;
+  bio: string;
+  Availabilities: { availableDate: string; startTime: string; endTime: string }[];
+}
+
+interface Review {
+  rating: number;
+  comment: string;
+}
+
+const DoctorDetails: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [doctor, setDoctor] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [reviews, setReviews] = useState([]);
+  const [doctor, setDoctor] = useState<Doctor | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
+  const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   useEffect(() => {
     const fetchDoctorDetails = async () => {
@@ -54,9 +69,11 @@ const DoctorDetails = () => {
     navigate(`/doctor/${doctor?.id}`);
   };
 
-  const handleReviewAdded = (newReview) => {
+  const handleReviewAdded = (newReview: Review) => {
     setReviews([...reviews, newReview]);
   };
+
+ 
 
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
@@ -106,14 +123,13 @@ const DoctorDetails = () => {
         </div>
 
         <div className="reviews-section">
-          
           {reviews.map((review, index) => (
             <div key={index} className="review">
-              <p><strong></strong> {review.rating}</p>
-              <p><strong></strong> {review.comment}</p>
+              <p><strong>Rating:</strong> {review.rating}</p>
+              <p><strong>Comment:</strong> {review.comment}</p>
             </div>
           ))}
-          <ReviewForm doctorId={id} onReviewAdded={handleReviewAdded} />
+          <ReviewForm doctorId={parseInt(id!)} onReviewAdded={handleReviewAdded}  />
         </div>
       </div>
 

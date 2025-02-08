@@ -1,19 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent, ChangeEvent } from 'react';
 import axios from 'axios';
 import "./review.css"
 
-const ReviewForm = ({ doctorId, onReviewAdded }) => {
-  const [rating, setRating] = useState(0);
-  const [hoveredRating, setHoveredRating] = useState(0);
-  const [comment, setComment] = useState('');
+interface ReviewFormProps {
+  doctorId: number;
+  onReviewAdded: (review: any) => void;
+}
 
-  const handleSubmit = async (e) => {
+const ReviewForm: React.FC<ReviewFormProps> = ({ doctorId,onReviewAdded }) => {
+  const [rating, setRating] = useState<number>(0);
+  const [hoveredRating, setHoveredRating] = useState<number>(0);
+  const [comment, setComment] = useState<string>('');
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:5000/api/review/add', {
-        doctorId,
-        rating,
-        comment,
+        DoctorID: doctorId,
+        PatientID: 1, // Replace with actual patient ID
+        Rating: rating,
+        comment: comment,
+        ReviewText: comment,
+        ReviewDate: new Date().toISOString().split('T')[0]
       });
       onReviewAdded(response.data);
       setRating(0);
@@ -23,11 +31,11 @@ const ReviewForm = ({ doctorId, onReviewAdded }) => {
     }
   };
 
-  const handleStarClick = (value) => {
+  const handleStarClick = (value: number) => {
     setRating(value);
   };
 
-  const handleStarHover = (value) => {
+  const handleStarHover = (value: number) => {
     setHoveredRating(value);
   };
 
@@ -66,7 +74,7 @@ const ReviewForm = ({ doctorId, onReviewAdded }) => {
         <textarea
           className="comment-input"
           value={comment}
-          onChange={(e) => setComment(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value)}
           placeholder="Share your experience..."
           required
         />

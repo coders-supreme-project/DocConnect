@@ -186,7 +186,9 @@ const Main: React.FC = () => {
                     <div className="search-results">
                         {doctors?.map(doctor => (
                             <div key={doctor.id} className="doctor-profile">
-                                <h3>{doctor.firstName} {doctor.lastName}</h3>
+                               <h3 onClick={() => navigate(`/doctor/${doctor.id}`)} style={{ cursor: "pointer", color: "#007bff" }}>
+                                    {doctor.firstName} {doctor.lastName}
+                                </h3>
                                 <p>Specialty: {doctor.specialty}</p>
                                 <p>Experience: {doctor.experience} years</p>
                                 <p>Qualifications: {doctor.qualifications}</p>

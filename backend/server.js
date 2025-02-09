@@ -1,7 +1,7 @@
 const express = require("express");
 
 const cors = require("cors");
-const db = require("./models");
+const db=require("../backend/models/index")
 
 // Import routes
 const authRoutes = require("./Routes/user.routes");
@@ -14,6 +14,13 @@ const specialityRoutes=require("./Routes/speciality.routes")
 
 // Initialize Express App
 const App = express();
+
+
+
+
+const review=require("./Routes/doctorreview.routes")
+// const appointment=require("./Routes")
+
 const port = process.env.PORT || 5000;
 
 // Middleware
@@ -30,6 +37,12 @@ App.use("/api/chats", chatRoutes);
 App.use("/api/messages", chatMessageRoutes);
 App.use("/api/speciality",specialityRoutes)
 
+
+App.use("/api/review",review);
+// App.use("/", );
+// App.use("/", );
+// App.use("/", );
+// App.use("/" )
 // Create HTTP server
 const http = require("http");
 const { Server } = require("socket.io");

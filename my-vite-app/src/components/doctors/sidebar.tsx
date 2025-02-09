@@ -33,7 +33,7 @@ const Sidebar: React.FC = () => {
 
   const menuItems = [
     { text: 'Home', icon: <HomeIcon />, onClick: () => handleNavigation('/') },
-    { text: 'Overview', icon: <DashboardIcon />, onClick: () => handleNavigation('/profile') },
+    { text: 'Overview', icon: <DashboardIcon />, onClick: () => handleNavigation('/dashboard') },
     { text: 'Appointment', icon: <EventIcon />, onClick: () => handleNavigation('/appointments') },
     { text: 'My Patients', icon: <PersonIcon />, onClick: () => handleNavigation('/patients') },
     { text: 'Schedule Timings', icon: <EventIcon />, onClick: () => handleNavigation('/doctor/availability') },

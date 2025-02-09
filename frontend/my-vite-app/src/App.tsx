@@ -3,7 +3,7 @@ import axios from "axios";
 import { BrowserRouter, Routes, Route,useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "./store/authSlice"; // ✅ Import Redux action
-import Main from './components/Main';
+import Main from '../../../my-vite-app/src/components/Main';
 // import AppointmentList from './components/appoitment/appointmentList'; // Correct path for 'appointment'
 // // import AppointmentForm from './components/appoitment/appointment'; // Correct path for 'appointment'
 // import AppointmentDetail from './components/appoitment/appointmentDetail'; // Correct path for 'appointment'

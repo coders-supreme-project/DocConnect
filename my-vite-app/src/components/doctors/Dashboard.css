@@ -1,0 +1,261 @@
+:root {
+  --primary-color: #00a3a3;
+  --secondary-color: #f0f2f5;
+  --text-color: #2c3e50;
+  --border-radius: 20px;
+  --sidebar-width: 80px;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #f8f9fa;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr 300px;
+  min-height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  background-color: var(--primary-color);
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+.sidebar-icon {
+  color: white;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.sidebar-icon:hover {
+  opacity: 1;
+}
+
+/* Main Content */
+.main-content {
+  padding: 30px;
+  background: white;
+  border-radius: var(--border-radius);
+  margin: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.search-bar {
+  background: var(--secondary-color);
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  width: 300px;
+  font-size: 14px;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Stats Card */
+.stats-card {
+  background: linear-gradient(135deg, #00a3a3 0%, #00c2c2 100%);
+  border-radius: var(--border-radius);
+  padding: 30px;
+  color: white;
+  margin-bottom: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 20px;
+}
+
+.doctor-image {
+  width: 200px;
+  height: auto;
+}
+
+.stats-box {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 15px;
+  backdrop-filter: blur(5px);
+}
+
+.stats-number {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.stats-label {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.percentage {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  margin-left: 10px;
+}
+
+.percentage.up {
+  background: rgba(0, 255, 0, 0.2);
+}
+
+.percentage.down {
+  background: rgba(255, 0, 0, 0.2);
+}
+
+/* Patient List */
+.patient-list {
+  margin-top: 30px;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.patient-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  background: var(--secondary-color);
+}
+
+.patient-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  margin-right: 15px;
+}
+
+.patient-info {
+  flex: 1;
+}
+
+.patient-name {
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.patient-time {
+  font-size: 12px;
+  color: var(--primary-color);
+}
+
+/* Right Sidebar */
+.right-sidebar {
+  padding: 30px;
+}
+
+.calendar {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  text-align: center;
+}
+
+.calendar-day {
+  padding: 8px;
+  font-size: 14px;
+}
+
+.calendar-date {
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.calendar-date.active {
+  background: var(--primary-color);
+  color: white;
+}
+
+.calendar-date:hover:not(.active) {
+  background: var(--secondary-color);
+}
+
+/* Upcoming Events */
+.upcoming-events {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 20px;
+}
+
+.event-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--secondary-color);
+}
+
+.event-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.event-info h4 {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+}
+
+.event-info p {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}

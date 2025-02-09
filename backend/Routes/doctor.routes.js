@@ -1,6 +1,6 @@
 const express = require('express');
 const Router = express.Router();
-const {searchDoctors,getLocationDoctors,getDoctorById} = require('../controller/doctor.controller');
+const {searchDoctors,getLocationDoctors,getDoctorById} = require('../Controller/doctor.controller');
 
 // Define the search endpoint
 Router.get('/search',searchDoctors);

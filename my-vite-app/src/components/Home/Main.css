@@ -261,8 +261,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
+  gap: 0.25rem; /* Reduced gap */
+  width: auto; /* Adjust width as needed */
+  padding: 0.25rem 0.5rem; /* Reduced padding */
+  font-size: 0.875rem; /* Reduced font size */
 }
 
 @media (min-width: 768px) {

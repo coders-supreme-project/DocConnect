@@ -11,16 +11,24 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'chatrooms',
+        model: 'Chatrooms',
         key: 'ChatroomID'
       }
     },
-    SenderID: {
+    PatientID: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true, // ✅ Allow NULL because the sender could be a doctor
       references: {
-        model: 'users',
-        key: 'UserID'
+        model: 'Patients', // ✅ Ensure this matches the actual table name
+        key: 'id' // ✅ Match the actual primary key of `Patients` table
+      }
+    },
+    DoctorID: {
+      type: DataTypes.INTEGER,
+      allowNull: true, // ✅ Allow NULL because the sender could be a patient
+      references: {
+        model: 'Doctors', // ✅ Ensure this matches the actual table name
+        key: 'id' // ✅ Match the actual primary key of `Doctors` table
       }
     },
     MessageText: {
@@ -29,7 +37,8 @@ module.exports = (sequelize) => {
     },
     SentAt: {
       type: DataTypes.DATE,
-      allowNull: false
+      allowNull: false,
+      defaultValue: DataTypes.NOW // ✅ Auto-generate timestamp
     }
   }, {
     timestamps: true,

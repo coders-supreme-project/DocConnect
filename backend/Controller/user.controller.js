@@ -4,220 +4,130 @@ const db = require("../models");
 const { Op } = require("sequelize");
 require("dotenv").config();
 
+// ✅ Password validation function
+const isStrongPassword = (password) => {
+    return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
+};
+
 // Register Doctor or Patient
-
 exports.register = async (req, res) => {
-  try {
-    const {
-      firstName,
-      lastName,
-      email,
-      password,
-      role,
-      phone,
-      specialty,
-      experience,
-      bio,
-      dateOfBirth,
-      gender,
-      address,
-      medicalHistory,
-      LocationLatitude,
-      LocationLongitude,
-    } = req.body;
+    try {
+        const {
+            firstName, lastName, email, password, role, phone,
+            specialty, experience, bio, dateOfBirth, gender,
+             medicalHistory, LocationLatitude, LocationLongitude
+        } = req.body;
 
-    if (!firstName || !lastName || !email || !password || !role || !phone) {
-      return res.status(400).json({ message: "Missing required fields" });
+        if (!firstName || !lastName || !email || !password || !role || !phone) {
+            return res.status(400).json({ message: "All fields are required." });
+        }
+
+        // ✅ Validate password strength
+        if (!isStrongPassword(password)) {
+            return res.status(400).json({
+                message: "Password must have at least 8 characters, including an uppercase, a lowercase, a number, and a special character."
+            });
+        }
+
+        // ✅ Check if email already exists
+        const existingUser = await db.Doctor.findOne({ where: { email } }) || 
+                              await db.Patient.findOne({ where: { email } });
+
+        if (existingUser) {
+            return res.status(400).json({ message: "Email already in use." });
+        }
+
+        // ✅ Hash the password before saving
+        const hashedPassword = await bcrypt.hash(password, 10);
+        let newUser;
+
+        if (role === "Doctor") {
+            if (!specialty || !experience) {
+                return res.status(400).json({ message: "Specialty and experience are required for doctors." });
+            }
+
+            newUser = await db.Doctor.create({
+                firstName, lastName, email, Password: hashedPassword, 
+                phone, specialty, experience, bio,
+                profilePicture: null, isVerified: false,
+                LocationLatitude, LocationLongitude
+            });
+        } else if (role === "Patient") {
+            if (!dateOfBirth || !gender) {
+                return res.status(400).json({ message: "Date of birth and gender are required for patients." });
+            }
+
+            newUser = await db.Patient.create({
+                firstName, lastName, email, Password: hashedPassword, 
+                phone, dateOfBirth, gender, medicalHistory,
+                profilePicture: null, LocationLatitude, LocationLongitude
+            });
+        } else {
+            return res.status(400).json({ message: "Invalid role specified." });
+        }
+
+        // ✅ Generate JWT token
+        const token = jwt.sign(
+            { id: newUser.id, role },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
+
+        res.status(201).json({ message: "User registered successfully!", user: newUser, token });
+    } catch (error) {
+        console.error("❌ Registration error:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
     }
-
-    // Check if email already exists
-    const existingUser = await db.Doctor.findOne({ where: { email } }) || 
-                          await db.Patient.findOne({ where: { email } });
-
-    if (existingUser) {
-      return res.status(400).json({ message: "Email already in use" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    let newUser;
-
-    if (role === "Doctor") {
-      if (!specialty || !experience) {
-        return res.status(400).json({ message: "Specialty and experience are required for doctors" });
-      }
-
-      newUser = await db.Doctor.create({
-        firstName,
-        lastName,
-        email,
-        Password: hashedPassword, 
-        phone,
-        specialty,
-        experience,
-        bio,
-        profilePicture: null,
-        isVerified: false,
-        LocationLatitude,
-        LocationLongitude,
-      });
-    } else if (role === "Patient") {
-      if (!dateOfBirth || !gender) {
-        return res.status(400).json({ message: "Date of birth and gender are required for patients" });
-      }
-
-      newUser = await db.Patient.create({
-        firstName,
-        lastName,
-        email,
-        Password: hashedPassword, 
-        phone,
-        dateOfBirth,
-        gender,
-        address,
-        medicalHistory,
-        profilePicture: null,
-        LocationLatitude,
-        LocationLongitude,
-      });
-    } else {
-      return res.status(400).json({ message: "Invalid role specified" });
-    }
-
-    const token = jwt.sign(
-      { id: newUser.id, role: role },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    res.status(201).json({ message: "User registered successfully", user: newUser, token });
-  } catch (error) {
-    console.error("Registration error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
 };
 
-
-
+// ✅ User Login
 exports.login = async (req, res) => {
-  try {
-    console.log("Incoming request body:", req.body); // Debugging
+    try {
+        const { email, password } = req.body;
+        let user = await db.Doctor.findOne({ where: { email } }) || 
+                   await db.Patient.findOne({ where: { email } });
 
-    const { email, password, } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and Password are required" });
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.Password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Incorrect password." });
+        }
+
+        const role = user.specialty ? "Doctor" : "Patient";
+        const userPayload = {
+            id: user.id, role, firstName: user.firstName, lastName: user.lastName, email: user.email
+        };
+
+        console.log("✅ User logged in:", userPayload); // Debugging
+
+        const token = jwt.sign(userPayload, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+        res.status(200).json({ message: "Login successful.", user: userPayload, token });
+    } catch (error) {
+        res.status(500).json({ message: "Error logging in.", error: error.message });
     }
-
-    // Find user in either Doctor or Patient table
-    let user = await db.Doctor.findOne({ where: { email } }) || 
-               await db.Patient.findOne({ where: { email } });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // Ensure password matches
-    const isMatch = await bcrypt.compare(password, user.Password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Incorrect password" });
-    }
-
-    // Create user payload for JWT
-    const userPayload = {
-      id: user.id,
-      role: user.role || (user.specialty ? "Doctor" : "Patient"),
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      phone: user.phone,
-      LocationLatitude: user.LocationLatitude || null,
-      LocationLongitude: user.LocationLongitude || null,
-    };
-
-    // Generate JWT token
-    const token = jwt.sign(userPayload, process.env.JWT_SECRET, { expiresIn: "7d" });
-
-    res.status(200).json({ message: "Login successful", user: userPayload, token });
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "Error logging in", error: error.message });
-  }
 };
 
-
-exports.getUsers = async (req, res) => {
-  try {
-    const users = await db.User.findAll({
-      // where: { role: "PATIENT" },
-      include: [
-        {
-          model: db.Appointment,
-          as: "PatientAppointments",
-        },
-        { model: db.DoctorReview, as: "DoctorReviews" },
-        // { model: db.Availability, as: "Availabilities" },
-      ],
-    });
-
-    return res
-      .status(200)
-      .json(users.filter((i) => i?.PatientAppointments.length > 0));
-  } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ message: "Error getting user profile", error });
-  }
-};
-
-// Login for Admin, Doctor, and Patient
-// exports.login = async (req, res) => {
-//   const { Email, Password } = req.body;
-
-//   if (!Email || !Password) {
-//     return res.status(400).json({ message: "Email and Password are required" });
-//   }
-
-//   try {
-//     const user = await db.User.findOne({
-//       where: { Email },
-//     });
-
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     const isMatch = await bcrypt.compare(Password, user.Password);
-//     if (!isMatch) {
-//       return res.status(401).json({ message: "Incorrect password" });
-//     }
-
-//     const token = jwt.sign(
-//       { UserID: user.UserID, Role: user.Role, LocationLatitude: user.LocationLatitude, LocationLongitude: user.LocationLongitude },
-//       process.env.JWT_SECRET,
-//       { expiresIn: "10000000h" }
-//     );
-
-//     res.status(200).json({ message: "Login successful", token });
-//   } catch (error) {
-//     console.error("Login error:", error);
-//     res.status(500).json({ message: "Error logging in", error: error.message });
-//   }
-// };
-
-
+// ✅ Session Validation
 exports.session = async (req, res) => {
-  try {
-    const { authorization } = req.headers;
-    const token = authorization.split(" ")[1];
+    try {
+        const { authorization } = req.headers;
+        if (!authorization || !authorization.startsWith("Bearer ")) {
+            return res.status(401).json({ message: "Unauthorized: No token provided." });
+        }
 
-    if (!token) {
-      return res.status(400).json({ message: "Token required" });
+        const token = authorization.split(" ")[1];
+        if (!token) {
+            return res.status(400).json({ message: "Token required." });
+        }
+
+        const session = jwt.verify(token, process.env.JWT_SECRET);
+        res.status(200).json(session);
+    } catch (error) {
+        console.error("Session error:", error);
+        res.status(500).json({ message: "Invalid token or server error." });
     }
-
-    const session = jwt.decode(token, process.env.JWT_SECRET);
-
-    res.status(200).json(session);
-  } catch (error) {
-    console.log(error);
-  }
 };

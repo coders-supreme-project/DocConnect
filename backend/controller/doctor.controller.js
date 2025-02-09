@@ -6,7 +6,7 @@ module.exports = {
  
  
 searchDoctors : async (req, res) => {
-  const { specialization, city, zipCode, availableDate, availableTime } = req.query;
+  const { specialization, city, zipCode, availableDate, availableTime,name } = req.query;
 
   try {
     const doctors = await db.Doctor.findAll({

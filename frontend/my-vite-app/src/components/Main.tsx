@@ -37,6 +37,35 @@ const Main: React.FC = () => {
         { label: 'Help', href: '#' },
         { label: 'Blogs', href: '#' },
     ];
+    const handleChatWithDoctor = async (doctorId: number) => {
+      const patientId = Number(localStorage.getItem("userId")); // Get the logged-in patient ID
+  
+      if (!patientId) {
+          alert("You must be logged in as a Patient to chat with a doctor.");
+          return;
+      }
+  
+      try {
+          // Make API request to create or fetch the chatroom
+          const response = await axios.post("http://localhost:5000/api/chats/create", {
+              PatientID: patientId,
+              DoctorID: doctorId
+          });
+  
+          // Check if the response contains the chatroom ID
+          const chatroomId = response.data.chatroom?.ChatroomID || response.data.chatroom?.id;
+  
+          if (chatroomId) {
+              navigate(`/chatroom/${chatroomId}`); // Redirect to the chatroom
+          } else {
+              console.error("Chatroom ID not found in response:", response.data);
+              alert("Failed to start chat. Chatroom ID not found.");
+          }
+      } catch (error) {
+          console.error("Error starting chat:", error);
+          alert("Failed to start chat. Please try again.");
+      }
+  };
 
   const DoctorID:number = 2;
   const [openBookingModal, setOpenBookingModal] = useState(false);
@@ -155,20 +184,30 @@ const Main: React.FC = () => {
           
           <div className="search-results">
             {doctors?.map(doctor => (
-              <div key={doctor.id} className="doctor-profile" onClick={() => handleDoctorClick(doctor.id)} >
-                <h3>{doctor.firstName} {doctor.lastName}</h3>
-                <p>Specialty: {doctor.specialty}</p>
-                <p>Experience: {doctor.experience} years</p>
-                <p>Qualifications: {doctor.qualifications}</p>
-                <h4>Availabilities:</h4>
-                <ul>
-                  {doctor.Availabilities.map((availability, index) => (
-                    <li key={index}>
-                      {availability.availableDate} from {availability.startTime} to {availability.endTime}
-                    </li>
-                  ))}
-                </ul>
+              <div key={doctor.id} className="doctor-profile" onClick={() => handleDoctorClick(doctor.id)}>
+              <div className="profile-image">
+                <img src="https://via.placeholder.com/100" alt="Doctor" />
               </div>
+              <h3>{doctor.firstName} {doctor.lastName}</h3>
+              <p>Specialty: {doctor.specialty}</p>
+              <p>Experience: {doctor.experience} years</p>
+              <p>Qualifications: {doctor.qualifications}</p>
+              <h4>Availabilities:</h4>
+              <ul>
+                {doctor.Availabilities.map((availability, index) => (
+                  <li key={index}>
+                    {availability.availableDate} from {availability.startTime} to {availability.endTime}
+                  </li>
+                ))}
+              </ul>
+              <button onClick={() => handleChatWithDoctor(doctor.id)}>Chat With Doctor</button>
+              <div className="social-icons">
+                <a href="#" aria-label="Facebook">f</a>
+                <a href="#" aria-label="Twitter">✅</a>
+                <a href="#" aria-label="LinkedIn">@</a>
+                <a href="#" aria-label="Instagram">in</a>
+              </div>
+            </div>
             ))}
           </div>
         </div>

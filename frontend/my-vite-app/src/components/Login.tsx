@@ -5,14 +5,34 @@ import { useDispatch } from "react-redux";
 import { login } from "../store/authSlice";
 import { AppDispatch } from "../store/store";
 import toast from "react-hot-toast";
-import "./login.css";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  CircularProgress,
+  Container,
+} from "@mui/material";
+import { LockOutlined } from "@mui/icons-material";
 
 interface LoginForm {
   email: string;
   password: string;
 }
+interface NavItem {
+  label: string;
+  href: string;
+}
 
 export default function Login() {
+  const navItems: NavItem[] = [
+    { label: 'Home', href: '#' },
+    { label: 'Service', href: '#' },
+    { label: 'Contact Us', href: '#' },
+    { label: 'Help', href: '#' },
+    { label: 'Blogs', href: '#' },
+  ];
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -24,67 +44,91 @@ export default function Login() {
       return;
     }
 
-
-
-
-    const loginData = {
-      email: data.email.trim(),
-      password: data.password.trim(),
-    };
-
-    console.log("Sending login request:", JSON.stringify(loginData, null, 2));
-
     try {
       setIsLoading(true);
-      const result = await dispatch(login(loginData)).unwrap();
+      const result = await dispatch(login(data)).unwrap();
 
       if (result.token) {
-        localStorage.setItem("token", result.token); // Store token
-        toast.success("Login successful! Redirecting...");
-
-        // Navigate based on user role
-        if (result.user.role === "Doctor") {
-          navigate("/dashboard");
-        } else {
-          navigate("/");
+        localStorage.setItem("token", result.token);
+        localStorage.setItem("userId", result.user.id.toString());
+        localStorage.setItem("role", result.user.role);
+        if (result.user.firstName) {
+          localStorage.setItem("firstName", result.user.firstName);
         }
+
+        toast.success(`Welcome, ${result.user.firstName || "User"}!`);
+        navigate(result.user.role === "Doctor" ? "/dashboard" : "/");
       }
-    } catch (error: any) {
-      console.error("Login error:", error);
-      toast.error(error.message || "Login failed. Please try again.");
+    } catch (error) {
+      toast.error("Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
-      <h2 className="login-title">Login</h2>
-      <form className="login-form" onSubmit={handleSubmit(onSubmit)}>
-        <input
-          {...register("email", {
-            required: "Email is required",
-            pattern: {
-              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: "Invalid email address",
-            },
-          })}
-          placeholder="Email"
-          type="email"
-        />
-        {errors.email && <p className="error">{errors.email.message}</p>}
-
-        <input
-          {...register("password", { required: "Password is required" })}
-          placeholder="Password"
-          type="password"
-        />
-        {errors.password && <p className="error">{errors.password.message}</p>}
-
-        <button className="login-button" type="submit" disabled={isLoading}>
-          {isLoading ? "Logging in..." : "Login"}
-        </button>
-      </form>
-    </div>
+    <Container maxWidth="xs">
+       {/* Navigation */}
+       <nav className="nav">
+        <div className="nav-container">
+          <div>
+            <span className="nav-logo">Healthcare</span>
+          </div>
+          <div className="nav-links">
+            {navItems.map((item, index) => (
+              <a key={index} href={item.href} className="nav-link">
+                {item.label}
+              </a>
+            ))}
+          </div>
+          <div className="nav-buttons">
+            <button className="btn btn-outline" onClick={()=>navigate("/register")}>Sign Up</button>
+            <button className="btn btn-primary"onClick={()=>navigate("/login")}>Log In</button>
+          
+          </div>
+        </div>
+      </nav>
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+      <Paper elevation={6} sx={{ padding: 4, borderRadius: 3, textAlign: "center", mt: 6 }}>
+        <LockOutlined color="primary" sx={{ fontSize: 40, mb: 1 }} />
+        <Typography variant="h5" fontWeight="bold">Login</Typography>
+        <form onSubmit={handleSubmit(onSubmit)} style={{ marginTop: "1rem" }}>
+          <TextField
+            fullWidth
+            label="Email"
+            variant="outlined"
+            {...register("email", { required: "Email is required" })}
+            error={!!errors.email}
+            helperText={errors.email?.message}
+            margin="normal"
+          />
+          <TextField
+            fullWidth
+            label="Password"
+            type="password"
+            variant="outlined"
+            {...register("password", { required: "Password is required" })}
+            error={!!errors.password}
+            helperText={errors.password?.message}
+            margin="normal"
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+            disabled={isLoading}
+          >
+            {isLoading ? <CircularProgress size={24} /> : "Login"}
+          </Button>
+        </form>
+      </Paper>
+    </Container>
   );
 }

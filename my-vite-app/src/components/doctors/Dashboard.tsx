@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { Grid, Typography, Paper, Box, Button } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../store/store';
@@ -10,8 +10,16 @@ import PatientChart from './patientchart';
 import RecentPatients from './RecentPatients';
 import Sidebar from './sidebar';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import ReactStars from 'react-rating-stars-component';
+
 interface User {
   LastName?: string;
+}
+
+interface Review {
+  Rating: number;
+  ReviewText: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -25,9 +33,12 @@ const Dashboard: React.FC = () => {
     notFound: state.appointment.notFound
   }));
 
+  const [reviews, setReviews] = useState<Review[]>([]);
+
   const handleProfileClick = () => {
     navigate('/profile');
   };
+
   const fetchData = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
@@ -36,7 +47,8 @@ const Dashboard: React.FC = () => {
       }
 
       if (!isAuthenticated && !loading) {
-        await dispatch(login({ token } as LoginPayload)).unwrap();
+        const userPayload = await dispatch(login({ token } as LoginPayload)).unwrap();
+        localStorage.setItem('userId', userPayload.id.toString());
       }
       
       await dispatch(fetchAppointmentsByUserId()).unwrap();
@@ -46,13 +58,30 @@ const Dashboard: React.FC = () => {
     }
   }, [dispatch, isAuthenticated, loading]);
 
+  const fetchReviews = useCallback(async () => {
+    try {
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        console.error('User ID not found in local storage');
+        return;
+      }
+
+      const response = await axios.get(`http://localhost:5000/api/review/${userId}/reviews`);
+      setReviews(response.data);
+    } catch (error) {
+      console.error('Failed to fetch reviews:', error);
+    }
+  }, []);
+
   useEffect(() => {
     dispatch(clearAppointmentsState());
     
     if (!isAuthenticated || appointments.length === 0) {
       fetchData();
     }
-  }, [fetchData, isAuthenticated, appointments.length, dispatch]);
+
+    fetchReviews();
+  }, [fetchData, fetchReviews, isAuthenticated, appointments.length, dispatch]);
 
   const handleRetry = () => {
     dispatch(clearAppointmentsState());
@@ -118,6 +147,30 @@ const Dashboard: React.FC = () => {
     return <AppointmentList appointments={appointments} />;
   };
 
+  const renderReviewsContent = () => {
+    if (reviews.length === 0) {
+      return <Typography>No reviews available</Typography>;
+    }
+
+    return (
+      <Box>
+        {reviews.map((review, index) => (
+          <Paper key={index} sx={{ p: 2, mb: 2 }}>
+            <Typography variant="h6">Rating:</Typography>
+            <ReactStars
+              count={5}
+              value={review.Rating}
+              size={24}
+              edit={false}
+              activeColor="#ffd700"
+            />
+            <Typography variant="body1">{review.ReviewText}</Typography>
+          </Paper>
+        ))}
+      </Box>
+    );
+  };
+
   const statsData = [
     { title: "Appointments", value: appointments.length.toString(), color: "#8e44ad" },
     { title: "Total Patients", value: "N/A", color: "#e74c3c" },
@@ -165,6 +218,14 @@ const Dashboard: React.FC = () => {
           <Grid item xs={12}>
             <Paper sx={{ p: 2 }}>
               <RecentPatients />
+            </Paper>
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={3} sx={{ mt: 2 }}>
+          <Grid item xs={12}>
+            <Paper sx={{ p: 2 }}>
+              {renderReviewsContent()}
             </Paper>
           </Grid>
         </Grid>

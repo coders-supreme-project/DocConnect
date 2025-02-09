@@ -27,6 +27,10 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
+    comment: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     ReviewText: {
       type: DataTypes.TEXT,
       allowNull: true

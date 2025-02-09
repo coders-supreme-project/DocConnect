@@ -1,4 +1,5 @@
 const { Op } = require('sequelize');
+const bcrypt = require("bcrypt");
 const db = require('../models/index');
 const {haversineDistance}=require("../utils/haversine.js")
 module.exports = {
@@ -79,5 +80,151 @@ searchDoctors : async (req, res) => {
         console.error("Error fetching nearest doctors:", error);
         res.status(500).json({ error: "Internal server error" });
     }
+},
+
+
+
+
+  // ✅ Create Doctor Profile
+  createDoctorProfile: async (req, res) => {
+    try {
+      const {
+        firstName,
+        lastName,
+        email,
+        password,
+        phone,
+        specialty,
+        experience,
+        bio,
+        profilePicture,
+        isVerified,
+        LocationLatitude,
+        LocationLongitude,
+      } = req.body;
+
+      // Hash password before saving
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const doctor = await db.Doctor.create({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        phone,
+        specialty,
+        experience,
+        bio,
+        profilePicture,
+        isVerified: isVerified || false,
+        LocationLatitude,
+        LocationLongitude,
+      });
+
+      return res.status(201).json({ message: "Doctor profile created successfully", doctor });
+    } catch (error) {
+      console.error("Error creating doctor profile:", error);
+      return res.status(500).json({ message: "Error creating doctor profile", error: error.message });
+    }
+  },
+
+  // ✅ Get All Doctors
+  getDoctors: async (req, res) => {
+    try {
+      const doctors = await db.Doctor.findAll({
+        attributes: ["id", "firstName", "lastName", "email", "phone", "specialty", "experience", "bio", "profilePicture", "isVerified", "LocationLatitude", "LocationLongitude"],
+      });
+
+      return res.status(200).json(doctors);
+    } catch (error) {
+      console.error("Error retrieving doctors:", error);
+      return res.status(500).json({ message: "Error retrieving doctors", error: error.message });
+    }
+  },
+
+  // ✅ Get Doctor by ID
+  getDoctorById: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const doctor = await db.Doctor.findOne({
+        where: { id },
+        attributes: ["id", "firstName", "lastName", "email", "phone", "specialty", "experience", "bio", "profilePicture", "isVerified", "LocationLatitude", "LocationLongitude"],
+      });
+
+      if (!doctor) {
+        return res.status(404).json({ message: "Doctor not found" });
+      }
+
+      return res.status(200).json(doctor);
+    } catch (error) {
+      console.error("Error retrieving doctor:", error);
+      return res.status(500).json({ message: "Error retrieving doctor", error: error.message });
+    }
+  },
+
+  // ✅ Update Doctor Profile
+  updateDoctorProfile: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const [updated] = await db.Doctor.update(req.body, {
+        where: { id },
+      });
+
+      if (!updated) {
+        return res.status(404).json({ message: "Doctor not found or no changes made" });
+      }
+
+      return res.status(200).json({ message: "Doctor profile updated successfully" });
+    } catch (error) {
+      console.error("Error updating doctor profile:", error);
+      return res.status(500).json({ message: "Error updating doctor profile", error: error.message });
+    }
+  },
+
+  // ✅ Delete Doctor Profile
+  deleteDoctorProfile: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const deleted = await db.Doctor.destroy({
+        where: { id },
+      });
+
+      if (!deleted) {
+        return res.status(404).json({ message: "Doctor not found" });
+      }
+
+      return res.status(200).json({ message: "Doctor profile deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting doctor profile:", error);
+      return res.status(500).json({ message: "Error deleting doctor profile", error: error.message });
+    }
+  },
+
+  // ✅ Get Current Logged-in Doctor (Assuming Authentication Middleware)
+  getCurrentDoctor: async (req, res) => {
+    try {
+      const doctorId = req.user.id; // Extracted from middleware authentication
+
+      const doctor = await db.Doctor.findOne({
+        where: { id: doctorId },
+        attributes: ["id", "firstName", "lastName", "email", "phone", "specialty", "experience", "bio", "profilePicture", "isVerified", "LocationLatitude", "LocationLongitude"],
+      });
+
+      if (!doctor) {
+        return res.status(404).json({ message: "Doctor not found" });
+      }
+
+      return res.status(200).json(doctor);
+    } catch (error) {
+      console.error("Error fetching current doctor:", error);
+      return res.status(500).json({ message: "Error fetching doctor data", error: error.message });
+    }
+  },
 }
-}
+
+
+
+
+

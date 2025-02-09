@@ -37,9 +37,6 @@ App.use("/api/chats", chatRoutes);
 App.use("/api/messages", chatMessageRoutes);
 App.use("/api/speciality",specialityRoutes)
 
-App.use('/api/doctor', doctorRoutes);
-App.use('/api/appointment',appointment);
-App.use("/api/availability",availabilities);
 App.use('/api/vedio', vedio);
 
 // App.use("/", );

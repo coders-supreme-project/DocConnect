@@ -204,7 +204,7 @@ const Main: React.FC = () => {
       <Dialog open={openBookingModal} onClose={() => setOpenBookingModal(false)} fullWidth maxWidth="md">
         <DialogTitle>Book an Appointment</DialogTitle>
         <DialogContent>
-          <AppointmentCalendar DoctorID={DoctorID} />
+          {/* <AppointmentCalendar DoctorID={DoctorID} /> */}
           <TimeSlotSelector 
             doctorId={DoctorID.toString()} 
             patientId="123" 

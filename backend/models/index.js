@@ -63,12 +63,15 @@ db.User.hasMany(db.Appointment, { foreignKey: 'DoctorID', as: 'DoctorAppointment
 db.Appointment.belongsTo(db.User, { foreignKey: 'PatientID', as: 'patient' });
 
 // ✅ One-to-Many: Doctor Reviews
-db.User.hasMany(db.DoctorReview, { foreignKey: 'DoctorID', as: 'reviews' });
-db.DoctorReview.belongsTo(db.User, { foreignKey: 'PatientID', as: 'patient' });
-db.DoctorReview.belongsTo(db.Doctor, { foreignKey: 'DoctorID', as: 'doctor'});
+// db.User.hasMany(db.DoctorReview, { foreignKey: 'DoctorID', as: 'reviews' });
+// db.DoctorReview.belongsTo(db.User, { foreignKey: 'PatientID', as: 'patient' });
+// db.DoctorReview.belongsTo(db.Doctor, { foreignKey: 'DoctorID', as: 'doctor'});
+
+db.Patient.hasMany(db.DoctorReview, { foreignKey: 'PatientID', as: 'PatientReviews' });
+db.DoctorReview.belongsTo(db.Patient, { foreignKey: 'PatientID', as: 'patient' });
 
 db.Doctor.hasMany(db.DoctorReview, { foreignKey: 'DoctorID', as: 'DoctorReviews' });
-db.DoctorReview.belongsTo(db.User, { foreignKey: 'DoctorID', as: 'ReviewedDoctor' });
+db.DoctorReview.belongsTo(db.Doctor, { foreignKey: 'DoctorID', as: 'ReviewedDoctor' });
 
 // ✅ One-to-Many: Chatrooms
 db.User.hasMany(db.Chatrooms, { foreignKey: 'PatientID', as: 'PatientChatrooms' });
@@ -88,9 +91,7 @@ db.ChatroomMessage.belongsTo(db.User, { foreignKey: 'SenderID', as: 'Sender' });
 db.Doctor.hasMany(db.Availability, { foreignKey: 'DoctorID', as: 'Availabilities' });
 db.Availability.belongsTo(db.Doctor, { foreignKey: 'DoctorID', as: 'Doctor' });
 
-// ✅ One-to-Many: Doctor Reviews
-//    db. Doctor.hasMany(db.Review, { foreignKey: 'doctorId', as: 'reviews',});
-//    db. Review.belongsTo(db.Doctor, { foreignKey: 'doctorId', as: 'Doctor',});
+
 
 // Sync the database (uncomment only when necessary)
 // connection.sync({ alter: true })

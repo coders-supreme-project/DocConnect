@@ -4,10 +4,11 @@ import "./review.css"
 
 interface ReviewFormProps {
   doctorId: number;
+  PatientID: number;
   onReviewAdded: (review: any) => void;
 }
 
-const ReviewForm: React.FC<ReviewFormProps> = ({ doctorId,onReviewAdded }) => {
+const ReviewForm: React.FC<ReviewFormProps> = ({ doctorId,PatientID,onReviewAdded }) => {
   const [rating, setRating] = useState<number>(0);
   const [hoveredRating, setHoveredRating] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
@@ -15,14 +16,15 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ doctorId,onReviewAdded }) => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/review/add', {
+      const payload = {
         DoctorID: doctorId,
-        PatientID: 1, // Replace with actual patient ID
+        PatientID: PatientID, // Ensure this is a valid PatientID from the users table
         Rating: rating,
         comment: comment,
         ReviewText: comment,
         ReviewDate: new Date().toISOString().split('T')[0]
-      });
+      };
+      const response = await axios.post('http://localhost:5000/api/review/add', payload);
       onReviewAdded(response.data);
       setRating(0);
       setComment('');
@@ -30,7 +32,6 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ doctorId,onReviewAdded }) => {
       console.error('Failed to submit review', error);
     }
   };
-
   const handleStarClick = (value: number) => {
     setRating(value);
   };

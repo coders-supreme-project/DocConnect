@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Modal from 'react-modal';
 import ReviewForm from './reviews/reviewForm';
+import StarRating from '../components/reviews/StarRating';
 import './Main.css';
 
 interface Doctor {
@@ -16,7 +17,7 @@ interface Doctor {
 }
 
 interface Review {
-  rating: number;
+  Rating: number;
   comment: string;
 }
 
@@ -45,8 +46,6 @@ const DoctorDetails: React.FC = () => {
     const fetchReviews = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/review/${id}/reviews`);
-        console.log("data", response.data);
-        
         setReviews(response.data);
       } catch (err) {
         console.error('Failed to fetch reviews', err);
@@ -56,6 +55,14 @@ const DoctorDetails: React.FC = () => {
     fetchDoctorDetails();
     fetchReviews();
   }, [id]);
+
+  const calculateAverageRating = (reviews: Review[]) => {
+    if (reviews.length === 0) return 0;
+    const totalRating = reviews.reduce((sum, review) => sum + review.Rating, 0);
+    return totalRating / reviews.length;
+  };
+
+  const averageRating = calculateAverageRating(reviews);
 
   const openModal = () => {
     setModalIsOpen(true);
@@ -73,8 +80,6 @@ const DoctorDetails: React.FC = () => {
     setReviews([...reviews, newReview]);
   };
 
- 
-
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
   if (!doctor) return <div className="error">Doctor not found</div>;
@@ -86,6 +91,9 @@ const DoctorDetails: React.FC = () => {
           <h1 onClick={handleNameClick}>
             Dr. {doctor.firstName} {doctor.lastName}
           </h1>
+          <div className="average-rating">
+            <strong>Average Rating:</strong> <StarRating rating={averageRating} />
+          </div>
           <button className="book-appointment" onClick={openModal}>
             Book Appointment
           </button>
@@ -125,11 +133,11 @@ const DoctorDetails: React.FC = () => {
         <div className="reviews-section">
           {reviews.map((review, index) => (
             <div key={index} className="review">
-              <p><strong>Rating:</strong> {review.rating}</p>
+              <p><strong>Rating:</strong> <StarRating rating={review.Rating} /></p>
               <p><strong>Comment:</strong> {review.comment}</p>
             </div>
           ))}
-          <ReviewForm doctorId={parseInt(id!)} onReviewAdded={handleReviewAdded}  />
+          <ReviewForm doctorId={parseInt(id!)} onReviewAdded={handleReviewAdded} />
         </div>
       </div>
 

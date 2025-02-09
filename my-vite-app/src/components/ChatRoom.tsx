@@ -4,6 +4,7 @@ import socket from "../socket/socket";
 import Message from "./Message";
 import "./ChatRoom.css";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";     
 
 interface MessageType {
     MessageID: number;
@@ -16,6 +17,7 @@ interface MessageType {
 }
 
 const Chatroom: React.FC = () => {
+    const navigate = useNavigate()
     const [messages, setMessages] = useState<MessageType[]>([]);
     const [newMessage, setNewMessage] = useState<string>("");
 
@@ -95,6 +97,9 @@ const Chatroom: React.FC = () => {
 
     return (
         <div className="chatroom-container">
+             <button className="chatroom-close-btn" onClick={() => navigate("/")}>
+                ❌
+            </button>
             <h1 className="chatroom-title">Chatroom {parsedChatroomId}</h1>
             <div className="chatroom-messages">
                 {messages.map((msg) => (

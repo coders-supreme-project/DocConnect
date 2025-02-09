@@ -1,142 +1,115 @@
 const { faker } = require('@faker-js/faker');
-const db = require("./models/index");
-
-const generateRandomCoordinates = () => {
-  const baseLat = 36.8939;
-  const baseLon = 10.1871;
-  const latRange = 0.09;
-  const lonRange = 0.09;
-  return {
-    LocationLatitude: parseFloat((baseLat + faker.number.float({ min: -latRange, max: latRange })).toFixed(6)),
-    LocationLongitude: parseFloat((baseLon + faker.number.float({ min: -lonRange, max: lonRange })).toFixed(6))
-  };
-};
+const db = require("./models/index"); // ✅ Ensure correct import
+const bcrypt = require("bcrypt");
 
 const seedDatabase = async () => {
   try {
-    await db.connection.sync({ force: true });
-    console.log("Seeding database...");
+    await db.connection.sync({ force: true }); // Reset database
+    console.log("🔄 Database reset and synced!");
 
-    // 🔹 Seed Users
-    const users = [];
-    for (let i = 0; i < 10; i++) {
-      users.push(await db.User.create({
+    // ✅ Generate Users
+    const users = await Promise.all([...Array(20)].map(async () => {
+      return await db.User.create({
         FirstName: faker.person.firstName(),
         LastName: faker.person.lastName(),
         Username: faker.internet.userName(),
-        Password: faker.internet.password(),
+        Password: await bcrypt.hash("password123", 10),
         Email: faker.internet.email(),
-        Role: faker.helpers.arrayElement(["Doctor", "Patient", "Admin"]),
-        Bio: faker.lorem.sentence(),
-        MeetingPrice: faker.finance.amount(20, 200, 2),
-      }));
-    }
-
-    // 🔹 Seed Specialties
-    const specialties = [];
-    const specialtyNames = ["Cardiology", "Neurology", "Pediatrics", "Dermatology"];
-    for (let name of specialtyNames) {
-      specialties.push(await db.Specialty.create({ name }));
-    }
-
-    // 🔹 Seed Doctors
-    const doctors = [];
-    for (let i = 0; i < 5; i++) {
-      doctors.push(await db.Doctor.create({
-        firstName: faker.person.firstName(),
-        lastName: faker.person.lastName(),
-        email: faker.internet.email(),
-        Password: faker.internet.password(),
-        phone: faker.phone.number(),
-        specialty: faker.helpers.arrayElement(specialtyNames),
-        experience: faker.number.int({ min: 1, max: 30 }),
-        bio: faker.lorem.paragraph(),
-        isVerified: faker.datatype.boolean(),
-        ...generateRandomCoordinates()
-      }));
-    }
-
-    // 🔹 Seed Patients
-    const patients = [];
-    for (let i = 0; i < 5; i++) {
-      patients.push(await db.Patient.create({
-        firstName: faker.person.firstName(),
-        lastName: faker.person.lastName(),
-        email: faker.internet.email(),
-        phone: faker.phone.number(),
-        dateOfBirth: faker.date.birthdate(),
-        gender: faker.helpers.arrayElement(["Male", "Female", "Other"]),
-        Password: faker.internet.password(),
-        ...generateRandomCoordinates()
-      }));
-    }
-
-    // 🔹 Seed Appointments
-    for (let i = 0; i < 5; i++) {
-      await db.Appointment.create({
-        PatientID: faker.helpers.arrayElement(patients).id,
-        DoctorID: faker.helpers.arrayElement(doctors).id,
-        AppointmentDate: faker.date.future(),
-        DurationMinutes: faker.number.int({ min: 15, max: 60 }),
-        Status: faker.helpers.arrayElement(["pending", "confirmed", "rejected"]),
+        Role: faker.helpers.arrayElement(["Doctor", "Patient"]),
       });
-    }
+    }));
 
-    // 🔹 Seed Availability
-    for (let i = 0; i < 5; i++) {
-      await db.Availability.create({
-        DoctorID: faker.helpers.arrayElement(doctors).id,
-        AvailableDate: faker.date.future(),
-        StartTime: "09:00",
-        EndTime: "17:00",
-        IsAvailable: true,
-      });
-    }
+    // ✅ Generate Doctors
+    const doctors = await Promise.all(
+      users.filter(u => u.Role === "Doctor").map(async user => {
+        return await db.Doctor.create({
+          Password: await bcrypt.hash("password123", 10),
+          userId: user.UserID, // ✅ Matches `userId` field in Doctor model
+          firstName: user.FirstName,
+          lastName: user.LastName,
+          email: user.Email,
+          phone: faker.phone.number(),
+          specialty: faker.person.jobTitle(), // ✅ Temporary single specialty
+          experience: faker.number.int({ min: 1, max: 30 }),
+          bio: faker.lorem.paragraph(),
+          isVerified: faker.datatype.boolean(),
+        });
+      })
+    );
 
-    // 🔹 Seed Chatrooms
-    const chatrooms = [];
-    for (let i = 0; i < 5; i++) {
-      chatrooms.push(await db.Chatrooms.create({
-        PatientID: faker.helpers.arrayElement(patients).id,
-        DoctorID: faker.helpers.arrayElement(doctors).id,
-        StartTime: faker.date.recent(),
+    // ✅ Generate Specialties & Link to Doctors
+    const specialties = ["Cardiology", "Dermatology", "Neurology", "Pediatrics", "Radiology", "Orthopedics"];
+    
+    await Promise.all(doctors.map(async doctor => {
+      const assignedSpecialties = faker.helpers.arrayElements(specialties, faker.number.int({ min: 1, max: 3 })); // Assign 1-3 specialties per doctor
+
+      await Promise.all(assignedSpecialties.map(async (specialtyName) => {
+        await db.Specialty.create({
+          userId: doctor.userId, // ✅ Associate specialty with doctor
+          name: specialtyName
+        });
       }));
-    }
+    }));
 
-    // 🔹 Seed Chatroom Messages
-    for (let i = 0; i < 10; i++) {
-      await db.ChatroomMessage.create({
-        ChatroomID: faker.helpers.arrayElement(chatrooms).ChatroomID,
-        SenderID: faker.helpers.arrayElement(users).UserID,
+    // ✅ Generate Patients
+    const patients = await Promise.all(
+      users.filter(u => u.Role === "Patient").map(async user => {
+        return await db.Patient.create({
+          userId: user.UserID,
+          Password: await bcrypt.hash("password123", 10),
+          firstName: user.FirstName,
+          lastName: user.LastName,
+          email: user.Email,
+          phone: faker.phone.number(),
+          dateOfBirth: faker.date.past(30, new Date(2000, 0, 1)),
+          gender: faker.helpers.arrayElement(["Male", "Female", "Other"]),
+        });
+      })
+    );
+
+    // ✅ Generate Chatrooms
+    const chatrooms = await Promise.all([...Array(10)].map(async () => {
+      const patient = faker.helpers.arrayElement(patients);
+      const doctor = faker.helpers.arrayElement(doctors);
+      return await db.Chatrooms.create({
+        PatientID: patient.id,
+        DoctorID: doctor.id,
+        StartTime: new Date(),
+      });
+    }));
+
+    // ✅ Generate Chatroom Messages
+    await Promise.all([...Array(30)].map(async () => {
+      const chatroom = faker.helpers.arrayElement(chatrooms);
+      const sender = faker.helpers.arrayElement([...patients, ...doctors]);
+
+      return await db.ChatroomMessage.create({
+        ChatroomID: chatroom.ChatroomID,
+        PatientID: sender.Role === "Patient" ? sender.id : null,
+        DoctorID: sender.Role === "Doctor" ? sender.id : null,
         MessageText: faker.lorem.sentence(),
-        SentAt: faker.date.recent(),
+        SentAt: new Date(),
       });
-    }
+    }));
 
-    // 🔹 Seed Doctor Reviews
-    for (let i = 0; i < 5; i++) {
-      await db.DoctorReview.create({
-        DoctorID: faker.helpers.arrayElement(doctors).id,
-        PatientID: faker.helpers.arrayElement(patients).id,
+    // ✅ Generate Doctor Reviews
+    await Promise.all([...Array(15)].map(async () => {
+      const patient = faker.helpers.arrayElement(patients);
+      const doctor = faker.helpers.arrayElement(doctors);
+      return await db.DoctorReview.create({
+        DoctorID: doctor.id,
+        PatientID: patient.id,
         Rating: faker.number.int({ min: 1, max: 5 }),
         ReviewText: faker.lorem.sentence(),
-        ReviewDate: faker.date.past(),
+        ReviewDate: new Date(),
       });
-    }
+    }));
 
-    // 🔹 Seed Media
-    for (let i = 0; i < 10; i++) {
-      await db.Media.create({
-        UserID: faker.helpers.arrayElement(users).UserID,
-        url: faker.image.url(),
-      });
-    }
-
-    console.log("✅ Database successfully seeded!");
-    process.exit();
+    console.log("🎉 Seeding completed successfully!");
   } catch (error) {
     console.error("❌ Error seeding database:", error);
-    process.exit(1);
+  } finally {
+    await db.connection.close();
   }
 };
 

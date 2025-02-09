@@ -1,170 +1,112 @@
-const { Doctor, Patient, Chatrooms, ChatroomMessage } = require('../models/index');
-const { Op } = require('sequelize');
+const db = require("../models");
+const ChatRoom = db.Chatrooms
 
-exports.createChatRoom = async (req, res) => {
+// Create a new chatroom
+exports.createChatroom = async (req, res) => {
   try {
-    const { userId } = req.user;
-    const { participantId } = req.body; // Assume the ID of the participant is passed
+      const { PatientID, DoctorID } = req.body;
 
-    let DoctorID, PatientID;
-
-    const userIsDoctor = await Doctor.findOne({ where: { userId } });
-    const userIsPatient = await Patient.findOne({ where: { userId } });
-
-    // Identify the roles based on the current user and participant
-    if (userIsDoctor) {
-      DoctorID = userIsDoctor.id;
-      PatientID = participantId; // Participant must be a patient in this case
-    } else if (userIsPatient) {
-      DoctorID = participantId; // Participant must be a doctor in this case
-      PatientID = userIsPatient.id;
-    } else {
-      return res.status(400).json({ message: 'Invalid user role' });
-    }
-
-    // Check if the chatroom already exists
-    const existingChatRoom = await Chatrooms.findOne({
-      where: {
-        [Op.and]: [
-          { DoctorID },
-          { PatientID }
-        ]
+      if (!PatientID || !DoctorID) {
+          return res.status(400).json({ message: "PatientID and DoctorID are required" });
       }
-    });
 
-    if (existingChatRoom) {
-      return res.status(409).json({
-        message: 'Chat room already exists',
-        chatRoom: existingChatRoom,
+      // ✅ Check if a chatroom already exists
+      let chatroom = await db.Chatrooms.findOne({
+          where: { PatientID, DoctorID }
       });
-    }
 
-    const newChatRoom = await Chatrooms.create({
-      DoctorID,
-      PatientID,
-    });
+      if (!chatroom) {
+          // ✅ If no chatroom exists, create a new one
+          chatroom = await db.Chatrooms.create({ PatientID, DoctorID, StartTime: new Date() });
+      }
 
-    res.status(201).json({
-      message: 'Chat room created successfully',
-      chatRoom: newChatRoom,
-    });
+      res.status(201).json({ message: "Chatroom found or created successfully", chatroom });
   } catch (error) {
-    console.error('Error creating chat room:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+      console.error("Error creating chatroom:", error);
+      res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+       
 
-exports.getAllChatRooms = async (req, res) => {
-  try {
-    const userId = req.user.userId;
-    const userIsDoctor = await Doctor.findOne({ where: { userId } });
-    const userIsPatient = await Patient.findOne({ where: { userId } });
+// Get all chatrooms for a user (patient or doctor)
 
-    let chatRooms;
+exports.getChatrooms = async (req, res) => {
+    try {
+        const { userId, role } = req.query;
 
-    if (userIsDoctor) {
-      chatRooms = await Chatrooms.findAll({
-        where: { DoctorID: userIsDoctor.id },
-        include: [
-          { model: Patient, as: 'Patient', attributes: ['id', 'firstName', 'lastName', 'email'] }
-        ],
-        order: [['createdAt', 'DESC']]
-      });
-    } else if (userIsPatient) {
-      chatRooms = await Chatrooms.findAll({
-        where: { PatientID: userIsPatient.id },
-        include: [
-          { model: Doctor, as: 'Doctor', attributes: ['id', 'firstName', 'lastName', 'email'] }
-        ],
-        order: [['createdAt', 'DESC']]
-      });
-    } else {
-      return res.status(403).json({ message: 'Invalid user role' });
+        console.log("Fetching chatrooms for userId:", userId, "Role:", role);
+
+        if (!userId || !role) {
+            return res.status(400).json({ message: "Missing userId or role" });
+        }
+
+        let chatrooms;
+        if (role === "Patient") {
+            chatrooms = await ChatRoom.findAll({
+                where: { PatientID: userId },
+                include: [{ model: db.Doctor, as: "ChatroomDoctor", attributes: ["firstName", "lastName"] }],
+            });
+        } else if (role === "Doctor") {
+            chatrooms = await ChatRoom.findAll({
+                where: { DoctorID: userId },
+                include: [{ model: db.Patient, as: "Patient", attributes: ["firstName", "lastName"] }],
+            });
+        } else {
+            return res.status(400).json({ message: "Invalid role" });
+        }
+
+        console.log("Chatrooms retrieved:", chatrooms); // ✅ Debugging
+
+        if (!chatrooms || chatrooms.length === 0) {
+            return res.status(404).json({ message: "No chatrooms found" });
+        }
+
+        res.status(200).json({ message: "Chatrooms retrieved successfully", chatrooms });
+    } catch (error) {
+        console.error("Error fetching chatrooms:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
     }
-
-    res.status(200).json(chatRooms);
-  } catch (error) {
-    console.error('Error fetching user chat rooms:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
-  }
 };
-exports.getChatRoomById = async (req, res) => {
+
+
+// Get a single chatroom by ID
+exports.getChatroomById = async (req, res) => {
     try {
-      const chatRoom = await Chatrooms.findOne({
-        where: { id: req.params.id },
-        include: [
-          { model: Doctor, as: 'Doctor', attributes: ['id', 'firstName', 'lastName', 'email'] },
-          { model: Patient, as: 'Patient', attributes: ['id', 'firstName', 'lastName', 'email'] }
-        ]
-      });
-  
-      if (!chatRoom) {
-        return res.status(404).json({ message: 'Chat room not found' });
-      }
-  
-      res.status(200).json(chatRoom);
+        const { chatroomId } = req.params;
+
+        const chatroom = await db.Chatrooms.findByPk(chatroomId, {
+            include: [
+                { model: db.Patient, as: "Patient" },
+                { model: db.Doctor, as: "ChatroomDoctor" },
+            ],
+        });
+
+        if (!chatroom) {
+            return res.status(404).json({ message: "Chatroom not found" });
+        }
+
+        res.status(200).json({ message: "Chatroom retrieved successfully", chatroom });
     } catch (error) {
-      console.error('Error fetching chat room by ID:', error);
-      res.status(500).json({ message: 'Internal server error', error: error.message });
+        console.error("Error fetching chatroom:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
     }
-  };
-  
-  exports.sendMessage = async (req, res) => {
+};
+
+// Delete a chatroom by ID
+exports.deleteChatroom = async (req, res) => {
     try {
-      const { chatroomId, messageText } = req.body;
-      const { userId } = req.user;
-  
-      // Check if the chat room exists
-      const chatRoom = await Chatrooms.findOne({ where: { id: chatroomId } });
-      if (!chatRoom) {
-        return res.status(404).json({ message: 'Chat room not found' });
-      }
-  
-      // Determine if the sender is a Doctor or Patient
-      const userIsDoctor = await Doctor.findOne({ where: { userId } });
-      const userIsPatient = await Patient.findOne({ where: { userId } });
-  
-      let SenderID;
-      if (userIsDoctor) {
-        SenderID = userIsDoctor.id;
-      } else if (userIsPatient) {
-        SenderID = userIsPatient.id;
-      } else {
-        return res.status(400).json({ message: 'Invalid user role' });
-      }
-  
-      // Create and store the message
-      const newMessage = await ChatroomMessage.create({
-        ChatroomID: chatroomId,
-        SenderID,
-        MessageText: messageText
-      });
-  
-      res.status(201).json({ message: 'Message sent successfully', newMessage });
+        const { chatroomId } = req.params;
+
+        const chatroom = await db.Chatrooms.findByPk(chatroomId);
+
+        if (!chatroom) {
+            return res.status(404).json({ message: "Chatroom not found" });
+        }
+
+        await chatroom.destroy();
+        res.status(200).json({ message: "Chatroom deleted successfully" });
     } catch (error) {
-      console.error('Error sending message:', error);
-      res.status(500).json({ message: 'Internal server error', error: error.message });
+        console.error("Error deleting chatroom:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
     }
-  };
-  
-  exports.getChatRoomMessages = async (req, res) => {
-    try {
-      const { chatroomId } = req.params;
-  
-      const chatRoom = await Chatrooms.findOne({ where: { id: chatroomId } });
-      if (!chatRoom) {
-        return res.status(404).json({ message: 'Chat room not found' });
-      }
-  
-      // Fetch messages for the specific chat room
-      const messages = await ChatroomMessage.findAll({
-        where: { ChatroomID: chatroomId },
-        order: [['createdAt', 'ASC']]
-      });
-  
-      res.status(200).json(messages);
-    } catch (error) {
-      console.error('Error fetching chat room messages:', error);
-      res.status(500).json({ message: 'Internal server error', error: error.message });
-    }
-  };
+};

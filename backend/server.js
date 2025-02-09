@@ -1,40 +1,67 @@
 const express = require("express");
-// const { sequelize } = require("./models");
-const cors = require("cors")
+
+const cors = require("cors");
+const db = require("./models");
+
+// Import routes
+const authRoutes = require("./Routes/user.routes");
 const doctorRoutes = require("./Routes/doctor.routes");
+const appointmentRoutes = require("./Routes/appointment.routes");
+const availabilityRoutes = require("./Routes/availibility.routes");
+const chatRoutes = require("./Routes/chatRoom.routes");
+const chatMessageRoutes = require("./Routes/chatroomMessage.routes");
+const specialityRoutes=require("./Routes/speciality.routes")
+
+// Initialize Express App
 const App = express();
-
-const db=require("../backend/models/index")
-const authRoutes = require('./Routes/user.routes')
-const appointment=require("./Routes/appointment.routes")
-const availabilities=require("./Routes/availibility.routes")
-const chatRoutes=require("./Routes/chatRoom.routes")
-// const appointment=require("./Routes")
-
 const port = process.env.PORT || 5000;
-App.use(cors());
-App.use(express.json())
+
+// Middleware
+App.use(cors({ origin: ["http://localhost:5173", "http://localhost:3000"], credentials: true }));
+App.use(express.json());
 App.use(express.urlencoded({ extended: true }));
 
+// Routes
 App.use("/api/users", authRoutes);
+App.use("/api/doctor", doctorRoutes);
+App.use("/api/appointment", appointmentRoutes);
+App.use("/api/availability", availabilityRoutes);
+App.use("/api/chats", chatRoutes);
+App.use("/api/messages", chatMessageRoutes);
+App.use("/api/speciality",specialityRoutes)
 
-App.use('/api/doctor', doctorRoutes);
-App.use('/api/appointment',appointment);
-App.use("/api/availability",availabilities);
-App.use('/api/chats', chatRoutes);
-// App.use("/", );
-// App.use("/", );
-// App.use("/", );
-// App.use("/" )
+// Create HTTP server
+const http = require("http");
+const { Server } = require("socket.io");
 
-// App.use("/", );
-// // App.use("//patient", userRoutes);
+const server = http.createServer(App);
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:5173", // Replace with your frontend URL
+        methods: ["GET", "POST"],
+    },
+});
 
+io.on("connection", (socket) => {
+    console.log("A user connected:", socket.id);
 
-// // App.use("//patient", testRoutes);
-// App.use('/', );
-// App.use('/', );
+    // Join a chatroom
+    socket.on("join_room", (room) => {
+        socket.join(room);
+        console.log(`User ${socket.id} joined room ${room}`);
+    });
 
-App.listen(port, () => {
-  console.log(`app listening on http://127.0.0.1:${port}`);
+    // Send a message to a chatroom
+    socket.on("send_message", (data) => {
+        socket.to(`chatroom-${data.ChatroomID}`).emit("receive_message", data);
+        console.log("Message sent:", data);
+    });
+
+    // Handle user disconnect
+    socket.on("disconnect", () => {
+        console.log("User disconnected:", socket.id);
+    });
+});
+server.listen(5000, () => {
+    console.log("Server running on http://localhost:5000");
 });

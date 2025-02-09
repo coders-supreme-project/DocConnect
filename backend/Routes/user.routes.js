@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { register, login, session } = require("../Controller/user.controller");
+const { register, login, session ,getUsers} = require("../controller/user.controller");
 const { authenticate } = require("../middleware/auth.middelware");
 // Register Doctor or Patient
 router.post("/register", register);
@@ -10,7 +10,7 @@ router.post("/register", register);
 // const { authenticate } = require("../middleware/auth.middelware");
 // // Register Doctor or Patient
 // Router.post("/register", register);
-
+router.get("/getUsers", getUsers);
 router.get('/check-doctor', authenticate, (req, res) => {
     res.json({ isDoctor: req.user.Role === 'Doctor' });
   });

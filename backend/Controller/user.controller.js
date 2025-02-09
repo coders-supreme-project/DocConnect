@@ -102,7 +102,7 @@ exports.login = async (req, res) => {
   try {
     console.log("Incoming request body:", req.body); // Debugging
 
-    const { email, password } = req.body;
+    const { email, password, } = req.body;
     if (!email || !password) {
       return res.status(400).json({ message: "Email and Password are required" });
     }
@@ -144,7 +144,30 @@ exports.login = async (req, res) => {
 };
 
 
-  
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await db.User.findAll({
+      // where: { role: "PATIENT" },
+      include: [
+        {
+          model: db.Appointment,
+          as: "PatientAppointments",
+        },
+        { model: db.DoctorReview, as: "DoctorReviews" },
+        // { model: db.Availability, as: "Availabilities" },
+      ],
+    });
+
+    return res
+      .status(200)
+      .json(users.filter((i) => i?.PatientAppointments.length > 0));
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ message: "Error getting user profile", error });
+  }
+};
 
 // Login for Admin, Doctor, and Patient
 // exports.login = async (req, res) => {

@@ -69,24 +69,50 @@ db.User.hasMany(db.DoctorReview, { foreignKey: 'DoctorID', as: 'DoctorReviews' }
 db.DoctorReview.belongsTo(db.User, { foreignKey: 'DoctorID', as: 'ReviewedDoctor' });
 
 // ✅ One-to-Many: Chatrooms
-db.User.hasMany(db.Chatrooms, { foreignKey: 'PatientID', as: 'PatientChatrooms' });
-db.Chatrooms.belongsTo(db.User, { foreignKey: 'PatientID', as: 'Patient' });
+// db.User.hasMany(db.Chatrooms, { foreignKey: 'PatientID', as: 'PatientChatrooms' });
+// db.Chatrooms.belongsTo(db.User, { foreignKey: 'PatientID', as: 'Patient' });
 
-db.User.hasMany(db.Chatrooms, { foreignKey: 'DoctorID', as: 'DoctorChatrooms' });
-db.Chatrooms.belongsTo(db.User, { foreignKey: 'DoctorID', as: 'ChatroomDoctor' });
+// db.User.hasMany(db.Chatrooms, { foreignKey: 'DoctorID', as: 'DoctorChatrooms' });
+// db.Chatrooms.belongsTo(db.User, { foreignKey: 'DoctorID', as: 'ChatroomDoctor' });
 
 // ✅ One-to-Many: Chatroom Messages
-db.Chatrooms.hasMany(db.ChatroomMessage, { foreignKey: 'ChatroomID', as: 'Messages' });
-db.ChatroomMessage.belongsTo(db.Chatrooms, { foreignKey: 'ChatroomID', as: 'Chatroom' });
+// db.Chatrooms.hasMany(db.ChatroomMessage, { foreignKey: 'ChatroomID', as: 'Messages' });
+// db.ChatroomMessage.belongsTo(db.Chatrooms, { foreignKey: 'ChatroomID', as: 'Chatroom' });
 
-db.User.hasMany(db.ChatroomMessage, { foreignKey: 'SenderID', as: 'SentMessages' });
-db.ChatroomMessage.belongsTo(db.User, { foreignKey: 'SenderID', as: 'Sender' });
+// Define the association between ChatroomMessage and User
+db.ChatroomMessage.belongsTo(db.User, { foreignKey: "SenderID", as: "Sender" });
+db.User.hasMany(db.ChatroomMessage, { foreignKey: "SenderID", as: "SentMessages" });
 
 // ✅ One-to-Many: Doctor Availability
 db.Doctor.hasMany(db.Availability, { foreignKey: 'DoctorID', as: 'Availabilities' });
 db.Availability.belongsTo(db.Doctor, { foreignKey: 'DoctorID', as: 'Doctor' });
 
-// Sync the database (uncomment only when necessary)
+db.Patient.hasMany(db.Chatrooms, { foreignKey: 'PatientID', as: 'PatientChatrooms' });
+db.Chatrooms.belongsTo(db.Patient, { foreignKey: 'PatientID', as: 'Patient' });
+
+db.Doctor.hasMany(db.Chatrooms, { foreignKey: 'DoctorID', as: 'DoctorChatrooms' });
+db.Chatrooms.belongsTo(db.Doctor, { foreignKey: 'DoctorID', as: 'Doctor' });
+
+// ✅ One-to-Many: Chatroom Messages
+db.Chatrooms.hasMany(db.ChatroomMessage, { foreignKey: 'ChatroomID', as: 'ChatroomMessages' });
+db.ChatroomMessage.belongsTo(db.Chatrooms, { foreignKey: 'ChatroomID', as: 'Chatroom' });
+
+db.ChatroomMessage.belongsTo(db.Patient, { foreignKey: "PatientID", as: "Patient" });
+db.ChatroomMessage.belongsTo(db.Doctor, { foreignKey: "DoctorID", as: "Doctor" });
+
+db.Patient.hasMany(db.ChatroomMessage, { foreignKey: "SenderID", as: "PatientMessages" });
+db.Doctor.hasMany(db.ChatroomMessage, { foreignKey: "SenderID", as: "DoctorMessages" });
+
+
+
+
+
+
+
+
+
+
+
 // connection.sync({ force: true })
 //     .then(() => console.log("✅ Database synced"))
 //     .catch((err) => console.error("❌ Error syncing database:", err));

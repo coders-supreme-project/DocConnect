@@ -118,7 +118,7 @@ db.Doctor.hasMany(db.ChatroomMessage, { foreignKey: "SenderID", as: "DoctorMessa
 
 
 
-// connection.sync({ force: true })
+// connection.sync({ alter: true })
 //     .then(() => console.log("✅ Database synced"))
 //     .catch((err) => console.error("❌ Error syncing database:", err));
 

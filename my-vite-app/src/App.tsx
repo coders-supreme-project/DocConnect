@@ -11,6 +11,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from "./components/doctors/Dashboard"
 import ProfileDoctor from "./components/doctors/ProfileDoctor"
+import PatientVideoCall from "./components/PatientVedioCall";
 import DoctorDetails from "./components/doctorDetails";
 import ChatroomList from "./components/ChatRoomList";
 import Chatroom from "./components/ChatRoom";
@@ -60,6 +61,7 @@ function App() {
       <Route path='/register' element={<Register/>}/>
       <Route path="/dashboard" element={<Dashboard/>}/>
       <Route path="/profile" element={<ProfileDoctor/>}/>
+      <Route path="/book" element={<PatientVideoCall/>}/>
       <Route path="/doctor/:id" element={<DoctorDetails />} />
 
       <Route

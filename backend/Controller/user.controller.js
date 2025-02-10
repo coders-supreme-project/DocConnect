@@ -82,33 +82,46 @@ exports.register = async (req, res) => {
 
 // ✅ User Login
 exports.login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        let user = await db.Doctor.findOne({ where: { email } }) || 
-                   await db.Patient.findOne({ where: { email } });
+  try {
+      const { email, password } = req.body;
 
-        if (!user) {
-            return res.status(404).json({ message: "User not found." });
-        }
+      // Find user in either Doctor or Patient table
+      let user = await db.Doctor.findOne({ where: { email } }) || 
+                 await db.Patient.findOne({ where: { email } });
 
-        const isMatch = await bcrypt.compare(password, user.Password);
-        if (!isMatch) {
-            return res.status(401).json({ message: "Incorrect password." });
-        }
+      if (!user) {
+          return res.status(404).json({ message: "User not found." });
+      }
 
-        const role = user.specialty ? "Doctor" : "Patient";
-        const userPayload = {
-            id: user.id, role, firstName: user.firstName, lastName: user.lastName, email: user.email
-        };
+      // Ensure password matches
+      const isMatch = await bcrypt.compare(password, user.Password);
+      if (!isMatch) {
+          return res.status(401).json({ message: "Incorrect password." });
+      }
 
-        console.log("✅ User logged in:", userPayload); // Debugging
+      // Create user payload for JWT
+      const role = user.specialty ? "Doctor" : "Patient";
+      const userPayload = {
+          id: user.id,
+          role,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phone: user.phone,
+          LocationLatitude: user.LocationLatitude || null,
+          LocationLongitude: user.LocationLongitude || null,
+      };
 
-        const token = jwt.sign(userPayload, process.env.JWT_SECRET, { expiresIn: "7d" });
+      console.log("✅ User logged in:", userPayload); // Debugging
 
-        res.status(200).json({ message: "Login successful.", user: userPayload, token });
-    } catch (error) {
-        res.status(500).json({ message: "Error logging in.", error: error.message });
-    }
+      // Generate JWT token
+      const token = jwt.sign(userPayload, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+      res.status(200).json({ message: "Login successful.", user: userPayload, token });
+  } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Error logging in.", error: error.message });
+  }
 };
 
 // ✅ Session Validation

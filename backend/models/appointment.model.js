@@ -35,6 +35,10 @@ module.exports = (sequelize) => {
       type: DataTypes.ENUM('pending', 'confirmed', 'rejected'),
       allowNull: false,
       defaultValue: 'pending'
+    },
+    Type: {
+      type: DataTypes.ENUM('Sur terrain', 'distance'),
+      allowNull: true,
     }
   }, {
     timestamps: true,

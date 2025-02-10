@@ -35,7 +35,7 @@ export const fetchAppointmentsByUserId = createAsyncThunk(
 
       const decodedToken = jwtDecode<CustomJwtPayload>(token);
       const userId =   decodedToken?.id || decodedToken?.userId;
-      
+      console.log(userId,"userId")
       if (!userId) {
         throw new Error("User ID not found in token");
       }

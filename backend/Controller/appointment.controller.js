@@ -5,30 +5,20 @@ const db = require('../models/index');
 exports.createAppointment = async (req, res) => {
   try {
     console.log('Received appointment data:', req.body);
-    const { DoctorID, AppointmentDate, DurationMinutes } = req.body;
-    const PatientID = req.user.UserID; // Fixed PatientID for testing
-
+    const { doctorId, patientId,appointmentDate, DurationMinutes,type } = req.body;
+    
     // Validate input
-    if (!DoctorID || !AppointmentDate || !DurationMinutes) {
+    if (!doctorId || !appointmentDate || !DurationMinutes) {
       return res.status(400).json({ message: "Missing required fields" });
-    }
-
-    // Ensure the DoctorID is valid and corresponds to a user with the role "Doctor"
-    const doctor = await db.User.findOne({
-      where: { UserID: DoctorID, Role: "Doctor" },
-    });
-    if (!doctor) {
-      console.log('Doctor not found:', DoctorID);
-      return res.status(404).json({ message: "Doctor not found" });
     }
 
     // Create the appointment
     const newAppointment = await db.Appointment.create({
-      PatientID,
-      DoctorID,
-      AppointmentDate,
-      DurationMinutes,
- 
+      PatientID: patientId,
+      DoctorID:doctorId,
+      AppointmentDate:appointmentDate,
+      DurationMinutes:DurationMinutes,
+      Type:type
     });
 
     console.log('Appointment created successfully:', newAppointment);
@@ -56,42 +46,45 @@ exports.getAppointments = async (req, res) => {
 
 // Get a single Appointment by ID
 exports.getAppointmentById = async (req, res) => {
+  const { id } = req.params;
+   console.log(id,"doctoooooor")
   try {
-    const appointment = await db.Appointment.findByPk(req.params.id);
-    if (!appointment) {
-      return res.status(404).json({ message: "Appointment not found" });
-    }
-    return res.status(200).json(appointment);
+    const appointments = await db.Appointment.findAll({
+      where: { DoctorID: id },
+      include: [
+        {
+          model: db.User,
+          as: 'Patient',
+          include: [{ model: db.Patient, as: 'PatientProfile' }],
+        },
+      ],
+    });
+    res.json(appointments);
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error retrieving appointment", error });
+    console.error('Error fetching appointments:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
 // Update an Appointment by ID
 exports.updateAppointment = async (req, res) => {
   try {
-    const { PatientID, DoctorID, AppointmentDate, DurationMinutes, Status } =
-      req.body;
+    const { status } = req.body; // Extract the status from the request body
     const appointment = await db.Appointment.findByPk(req.params.id);
 
     if (!appointment) {
       return res.status(404).json({ message: "Appointment not found" });
     }
 
-    appointment.PatientID = PatientID;
-    appointment.DoctorID = DoctorID;
-    appointment.AppointmentDate = AppointmentDate;
-    appointment.DurationMinutes = DurationMinutes;
-    appointment.Status = Status;
+    // Update only the status
+    appointment.Status = status;
 
     await appointment.save();
     return res.status(200).json(appointment);
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Error updating appointment", error });
+      .json({ message: "Error updating appointment status", error });
   }
 };
 

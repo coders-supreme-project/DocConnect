@@ -10,7 +10,7 @@ import Main from './components/Home/Main';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from "./components/doctors/Dashboard"
-import ProfileDoctor from "./components/doctors/ProfileDoctor"
+import DoctorProfile from "./components/doctors/ProfileDoctor"
 import PatientVideoCall from "./components/PatientVedioCall";
 import DoctorDetails from "./components/doctorDetails";
 import ChatroomList from "./components/ChatRoomList";
@@ -50,7 +50,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Main />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<ProfileDoctor />} />
+        <Route path="/profile" element={<DoctorProfile />} />
         {/* <Route path="/appointments" element={<AppointmentList />} />
         <Route path="/appointments/create" element={<AppointmentForm />} />
         <Route path="/appointments/:id" element={<AppointmentDetail />} /> */}
@@ -60,7 +60,7 @@ function App() {
       <Route path='/login' element={<Login/>} />
       <Route path='/register' element={<Register/>}/>
       <Route path="/dashboard" element={<Dashboard/>}/>
-      <Route path="/profile" element={<ProfileDoctor/>}/>
+      
       <Route path="/book" element={<PatientVideoCall/>}/>
       <Route path="/doctor/:id" element={<DoctorDetails />} />
 

@@ -38,8 +38,10 @@ export const fetchUsers = createAsyncThunk<User[], void, { rejectValue: string }
       const response = await axios.get<User[]>(
         "http://localhost:5000/api/users/getUsers"
       );
-      return response.data;
 
+      console.log("API Response:", response.data); // ✅ Log the API response
+
+      return Array.isArray(response.data) ? response.data : []; // ✅ Ensure array
     } catch (err) {
       const error = err as AxiosError;
       if (error.response) {

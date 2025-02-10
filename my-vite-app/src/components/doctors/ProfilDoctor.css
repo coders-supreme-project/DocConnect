@@ -1,117 +1,199 @@
-/* body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #f4f7fc;
-    margin: 0;
-    padding: 0;
+/* Upload Button */
+#uploadButton {
+  background-color: #f39c12; /* Bright yellow-orange */
+  color: #fff; /* White text */
+  padding: 12px 25px; /* Adequate padding */
+  font-size: 9px; /* Text size */
+  border: none;
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer;
+  text-transform: uppercase; /* Make text uppercase */
+  font-weight: bold; /* Bold text */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition */
+  display: inline-flex;
+  align-items: center; /* Center text and icon */
+}
+
+/* Hover effect for the button */
+#uploadButton:hover {
+  background-color: #e67e22; /* Slightly darker shade on hover */
+  transform: scale(1.05); /* Slight zoom effect */
+}
+
+/* Optional: If you want an icon next to the text */
+#uploadButton svg {
+  margin-right: 10px; /* Space between icon and text */
+}
+
+/* Focused state (when the user clicks or focuses on the button) */
+#uploadButton:focus {
+  outline: none; /* Remove the default focus outline */
+  box-shadow: 0 0 10px rgba(243, 156, 18, 0.7); /* Add a glow effect */
+}
+/* Profile Sidebar */
+.profile-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 100%;
+  background-color: #2c3e50; /* Dark background */
+  color: #ecf0f1; /* Light text color */
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  padding: 20px;
+  z-index: 1000;
+  box-shadow: -2px 0 15px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+}
+
+.profile-sidebar.open {
+  transform: translateX(0);
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f39c12; /* Highlight separator */
+}
+
+.edit-button, .close-button {
+  background: none;
+  border: none;
+  color: #ecf0f1;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.edit-button:hover, .close-button:hover {
+  color: #f39c12; /* Highlight color on hover */
+}
+
+.profile-content {
+  text-align: center;
+  padding: 20px;
+}
+
+.profile-avatar {
+  width: 150px;  /* Increase the width */
+  height: 150px; /* Increase the height */
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 20px;
+  border: 3px solid #f39c12; /* Border color */
+  transition: border-color 0.3s ease;
+}
+
+.profile-avatar:hover {
+  border-color: #f1c40f; /* Highlight border on hover */
+}
+
+.upload-button button {
+  background-color: #f39c12; /* Bright yellow-orange */
+  color: #fff;
+  padding: 12px 25px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.upload-button button:hover {
+  background-color: #e67e22;
+  transform: scale(1.05); /* Slight zoom effect */
+}
+
+.upload-button button:focus {
+  outline: none;
+  box-shadow: 0 0 10px rgba(243, 156, 18, 0.7); /* Glow effect */
+}
+
+.profile-form input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #f39c12;
+  border-radius: 5px;
+  background-color: #34495e;
+  color: #ecf0f1;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.profile-form input:hover {
+  border-color: #f1c40f;
+}
+
+.profile-form input::placeholder {
+  color: #bdc3c7;
+}
+
+.profile-info p {
+  font-size: 16px;
+  margin: 8px 0;
+}
+
+.profile-info strong {
+  color: #f39c12; /* Highlight labels */
+}
+
+.logout-container {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  background-color: #e74c3c; /* Red button for logout */
+  color: #ecf0f1;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+  background-color: #c0392b; /* Darker red on hover */
+}
+
+.logout-button .icon {
+  margin-right: 10px;
+}
+
+.profile-form input:focus {
+  outline: none;
+  border-color: #f39c12; /* Focus border */
+}
+
+.profile-header button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #f39c12;
+  cursor: pointer;
+}
+
+.profile-header button:hover {
+  color: #ecf0f1;
+}
+
+.profile-info {
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .profile-sidebar {
+    width: 100%;
   }
-  
-  .profile-container {
-    display: flex;
-    height: 100vh;
-  }
-  
-  .sidebar {
-    width: 80px;
-    background: #0d3b41;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 20px;
-  }
-  
-  .sidebar-icon {
-    width: 40px;
-    height: 40px;
-    margin: 20px 0;
-    cursor: pointer;
-    color: white;
-    transition: transform 0.3s ease;
-  }
-  
-  .sidebar-icon:hover {
-    transform: scale(1.1);
-  }
-  
-  .main-content {
-    flex-grow: 1;
-    padding: 30px;
-  }
-  
-  .profile-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .profile-img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-  }
-  
-  .stats-section {
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
-    margin-top: 20px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .stats-total {
-    font-size: 32px;
-    font-weight: bold;
-    color: #0d3b41;
-  }
-  
-  .trend-up {
-    color: green;
-  }
-  
-  .trend-down {
-    color: red;
-  }
-  
-  .patient-list {
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
-    margin-top: 20px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .patient-card {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 15px;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-  }
-  
-  .patient-card:hover {
-    background-color: #f9fafc;
-  }
-  
-  .patient-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #0d3b41;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-  }
-  
-  .patient-status {
-    background: #ff3b30;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 10px;
-    font-size: 12px;
-  } */
+}

@@ -1,74 +1,71 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid, Typography, Paper, Box, Button } from '@mui/material';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '../../store/store';
-import { login, LoginPayload } from '../../store/authSlice';
-import { fetchAppointmentsByUserId, clearAppointmentsState } from '../../features/appointmentslice';
+import axios from 'axios';
 import StatCard from './StatCard';
 import AppointmentList from './appointmentlist';
 import PatientChart from './patientchart';
 import RecentPatients from './RecentPatients';
 import Sidebar from './sidebar';
 import { useNavigate } from 'react-router-dom';
+
 interface User {
   LastName?: string;
 }
 
-const Dashboard: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
-  const { user, loading, isAuthenticated } = useSelector((state: RootState) => state.auth);
-  const { appointments, loadingApp, errorApp, notFound } = useSelector((state: RootState) => ({
-    appointments: state.appointment.appointments,
-    loadingApp: state.appointment.loadingApp,
-    errorApp: state.appointment.errorApp,
-    notFound: state.appointment.notFound
-  }));
-
-  const handleProfileClick = () => {
-    navigate('/profile');
+interface Appointment {
+  AppointmentID: number;
+  AppointmentDate: string;
+  Status: string;
+  Patient: {
+    FirstName: string;
+    LastName: string;
   };
-  const fetchData = useCallback(async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        return;
-      }
+}
 
-      if (!isAuthenticated && !loading) {
-        await dispatch(login({ token } as LoginPayload)).unwrap();
+const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [notFound, setNotFound] = useState(false);
+
+  const doctorId = localStorage.getItem('userId'); 
+  console.log(doctorId,'doctor iid')
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setNotFound(false);
+
+      const response = await axios.get(`http://localhost:5000/api/appointment/${doctorId}`);
+      if (response.data.length === 0) {
+        setNotFound(true);
+      } else {
+        setAppointments(response.data);
       }
-      
-      await dispatch(fetchAppointmentsByUserId()).unwrap();
     } catch (error) {
-      // Error is now handled in the slice
-      console.error('Failed to fetch data:', error);
+      console.error('Failed to fetch appointments:', error);
+      setError('Failed to fetch appointments. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  }, [dispatch, isAuthenticated, loading]);
+  };
 
   useEffect(() => {
-    dispatch(clearAppointmentsState());
-    
-    if (!isAuthenticated || appointments.length === 0) {
-      fetchData();
-    }
-  }, [fetchData, isAuthenticated, appointments.length, dispatch]);
+    fetchAppointments();
+  }, [doctorId]);
 
   const handleRetry = () => {
-    dispatch(clearAppointmentsState());
-    fetchData();
+    fetchAppointments();
   };
 
   const getWelcomeMessage = () => {
-    if (loading) return 'Loading...';
-    if (!isAuthenticated || !user) return 'Welcome, Doctor';
-    
-    const doctorName = (user as User).LastName || 'Doctor';
+    const doctorName = localStorage.getItem('userName') || 'Doctor';
     return `Welcome, Dr. ${doctorName}`;
   };
 
   const renderAppointmentsContent = () => {
-    if (loadingApp) {
+    if (loading) {
       return <Typography>Loading appointments...</Typography>;
     }
 
@@ -81,9 +78,9 @@ const Dashboard: React.FC = () => {
           <Typography color="textSecondary" gutterBottom>
             You currently don't have any appointments scheduled.
           </Typography>
-          <Button 
-            variant="contained" 
-            color="primary" 
+          <Button
+            variant="contained"
+            color="primary"
             onClick={handleRetry}
             sx={{ mt: 2 }}
           >
@@ -93,15 +90,15 @@ const Dashboard: React.FC = () => {
       );
     }
 
-    if (errorApp && !notFound) {
+    if (error) {
       return (
         <Box sx={{ textAlign: 'center', py: 3 }}>
           <Typography color="error" gutterBottom>
-            {errorApp}
+            {error}
           </Typography>
-          <Button 
-            variant="contained" 
-            color="primary" 
+          <Button
+            variant="contained"
+            color="primary"
             onClick={handleRetry}
             sx={{ mt: 2 }}
           >

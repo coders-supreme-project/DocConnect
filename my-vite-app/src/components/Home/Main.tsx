@@ -39,7 +39,6 @@ const Main: React.FC = () => {
         { label: 'Blogs', href: '/blogs' },
     ];
 
-    const DoctorID: number = 2;
     const [openBookingModal, setOpenBookingModal] = useState(false);
     const [searchParams, setSearchParams] = useState({
         name: '',
@@ -208,11 +207,8 @@ const Main: React.FC = () => {
             <Dialog open={openBookingModal} onClose={() => setOpenBookingModal(false)} fullWidth maxWidth="md">
                 <DialogTitle>Book an Appointment</DialogTitle>
                 <DialogContent>
-                    <AppointmentCalendar DoctorID={DoctorID} />
-                    <TimeSlotSelector
-                        doctorId={DoctorID.toString()}
-                        patientId="123"
-                    />
+                    <AppointmentCalendar/>
+                    
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenBookingModal(false)}>Close</Button>

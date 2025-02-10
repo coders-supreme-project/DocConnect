@@ -6,6 +6,8 @@ const db=require("../backend/models/index")
 // Import routes
 const authRoutes = require("./Routes/user.routes");
 const doctorRoutes = require("./Routes/doctor.routes");
+const doctor2Routes = require("./Routes/doctor2.routes");
+
 const appointmentRoutes = require("./Routes/appointment.routes");
 const availabilityRoutes = require("./Routes/availibility.routes");
 const chatRoutes = require("./Routes/chatRoom.routes");
@@ -31,6 +33,7 @@ App.use(express.urlencoded({ extended: true }));
 // Routes
 App.use("/api/users", authRoutes);
 App.use("/api/doctor", doctorRoutes);
+App.use("/api/doctor2", doctor2Routes);
 App.use("/api/appointment", appointmentRoutes);
 App.use("/api/availability", availabilityRoutes);
 App.use("/api/chats", chatRoutes);

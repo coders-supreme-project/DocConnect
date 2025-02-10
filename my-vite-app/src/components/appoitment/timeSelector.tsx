@@ -1,13 +1,12 @@
 import * as React from "react";
 const { useState } = React;
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { bookAppointment } from '../actions/actions';
 import axios from 'axios';
 import { Button, Typography, Grid, Snackbar, Box } from '@mui/material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import ConfirmationModal from './confirmationModal';
 import { TimeSlotSelectorProps } from '../types/types';
-import { RootState } from '../../store/store'; // or wherever your RootState is defined
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     props,
@@ -16,10 +15,8 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({ doctorId, patientId }) => {
+const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({ doctorID, patientID, selectedDate, appointmentType }) => {
     const dispatch = useDispatch();
-    const selectedDateString = useSelector((state: RootState) => state.appointment.selectedDate);
-    const selectedDate = selectedDateString ? new Date(selectedDateString) : new Date();
     const availableSlots = ['09:00', '10:00', '11:00', '14:00', '15:00']; 
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -34,14 +31,15 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({ doctorId, patientId
 
     const handleConfirmAppointment = async () => {
         try {
-            const response = await axios.post('/api/appointments', {
-                doctorId,
-                patientId,
-                appointmentDate: selectedDate,
-                startTime: selectedSlot
+            const response = await axios.post('http://localhost:5000/api/appointment/create', {
+                doctorId: doctorID, // Use the doctorID prop
+                patientId: patientID, // Use the patientID prop
+                appointmentDate: selectedDate, // Use the selectedDate prop
+                DurationMinutes: 30,
+                type: appointmentType // Ensure this is passed correctly
             });
             if (response.status === 201) {
-                dispatch(bookAppointment({ doctorId, patientId, slot: selectedSlot }));
+                dispatch(bookAppointment({ doctorId: doctorID, patientId: patientID, slot: selectedSlot }));
                 setSnackbarMessage('Appointment booked successfully!');
                 setSnackbarSeverity('success');
                 setOpenSnackbar(true);
@@ -90,8 +88,8 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({ doctorId, patientId
                 onClose={() => setOpenConfirmationModal(false)}
                 onConfirm={handleConfirmAppointment}
                 appointmentDetails={{
-                    doctorId,
-                    patientId,
+                    doctorId: doctorID, // Use the doctorID prop
+                    patientId: patientID, // Use the patientID prop
                     slot: selectedSlot,
                     date: selectedDate.toLocaleDateString()
                 }}
@@ -101,4 +99,3 @@ const TimeSlotSelector: React.FC<TimeSlotSelectorProps> = ({ doctorId, patientId
 };
 
 export default TimeSlotSelector;
-

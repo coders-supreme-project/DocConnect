@@ -4,16 +4,16 @@ const {createAppointment,getAppointments,getAppointmentById,updateAppointment,de
 const {authenticate} = require('../middleware/auth.middelware'); // Middleware to protect routes
 
 // 📌 Create an Appointment (Patient books an appointment)
-router.post('/create', authenticate,createAppointment);
+router.post('/create',createAppointment);
 
 // 📌 Get all Appointments (Admin or Doctor)
 router.get('/all', authenticate, getAppointments);
 
 // 📌 Get Appointment by ID
-router.get('/:id', authenticate, getAppointmentById);
+router.get('/:id', getAppointmentById);
 
 // 📌 Update an Appointment (Doctor confirms or cancels)
-router.put('/update/:id', authenticate, updateAppointment);
+router.put('/update/:id', updateAppointment);
 
 // 📌 Delete an Appointment
 router.delete('/delete/:id', authenticate, deleteAppointment);

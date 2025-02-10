@@ -144,3 +144,20 @@ exports.session = async (req, res) => {
         res.status(500).json({ message: "Invalid token or server error." });
     }
 };
+exports.getUsers = async (req, res) => {
+    try {
+      const users = await db.User.findAll({
+        where: { role: "PATIENT" },
+        include: [
+          { model: db.Patient, as: "PatientProfile" },
+          { model: db.Appointment, as: "PatientAppointments" },
+          { model: db.Media, as: "ProfilePicture" }, 
+        ],
+      });
+
+      return res.status(200).json({ success: true, data: users });
+    } catch (error) {
+      console.error("Error fetching patients:", error);
+      return res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
+  };

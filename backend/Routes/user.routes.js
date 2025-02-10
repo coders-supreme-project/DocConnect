@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { register, login, session } = require("../controller/user.controller");
+const { register, login, session ,getUsers} = require("../controller/user.controller");
 const { authenticate } = require("../middleware/auth.middelware");
 
 // Register Doctor or Patient
@@ -12,7 +12,7 @@ router.post("/register", register);
 // // Register Doctor or Patient
 // Router.post("/register", register);
 
-
+router.get("/getUsers", getUsers);
 // Check if the authenticated user is a Doctor
 
 

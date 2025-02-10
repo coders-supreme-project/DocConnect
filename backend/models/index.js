@@ -27,6 +27,7 @@ db.Availability = require('./availability.model')(connection, DataTypes);
 db.Specialty = require('./speciality.model')(connection, DataTypes);
 db.Doctor = require("./doctor.model")(connection, DataTypes);
 db.Patient = require("./patient.model")(connection, DataTypes);
+// db.Review=require("./review.model")(connection,DataTypes);
 
 // ==================== Associations ==================== //
 
@@ -59,14 +60,18 @@ db.User.hasMany(db.Appointment, { foreignKey: 'PatientID', as: 'PatientAppointme
 db.Appointment.belongsTo(db.User, { foreignKey: 'PatientID', as: 'Patient' });
 
 db.User.hasMany(db.Appointment, { foreignKey: 'DoctorID', as: 'DoctorAppointments' });
-db.Appointment.belongsTo(db.User, { foreignKey: 'DoctorID', as: 'Doctor' });
+db.Appointment.belongsTo(db.User, { foreignKey: 'PatientID', as: 'patient' });
 
 // ✅ One-to-Many: Doctor Reviews
-db.User.hasMany(db.DoctorReview, { foreignKey: 'PatientID', as: 'PatientReviews' });
-db.DoctorReview.belongsTo(db.User, { foreignKey: 'PatientID', as: 'Patient' });
+// db.User.hasMany(db.DoctorReview, { foreignKey: 'DoctorID', as: 'reviews' });
+// db.DoctorReview.belongsTo(db.User, { foreignKey: 'PatientID', as: 'patient' });
+// db.DoctorReview.belongsTo(db.Doctor, { foreignKey: 'DoctorID', as: 'doctor'});
 
-db.User.hasMany(db.DoctorReview, { foreignKey: 'DoctorID', as: 'DoctorReviews' });
-db.DoctorReview.belongsTo(db.User, { foreignKey: 'DoctorID', as: 'ReviewedDoctor' });
+db.Patient.hasMany(db.DoctorReview, { foreignKey: 'PatientID', as: 'PatientReviews' });
+db.DoctorReview.belongsTo(db.Patient, { foreignKey: 'PatientID', as: 'patient' });
+
+db.Doctor.hasMany(db.DoctorReview, { foreignKey: 'DoctorID', as: 'DoctorReviews' });
+db.DoctorReview.belongsTo(db.Doctor, { foreignKey: 'DoctorID', as: 'ReviewedDoctor' });
 
 // ✅ One-to-Many: Chatrooms
 // db.User.hasMany(db.Chatrooms, { foreignKey: 'PatientID', as: 'PatientChatrooms' });

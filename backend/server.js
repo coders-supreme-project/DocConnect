@@ -21,9 +21,13 @@ const vedio=require("./Routes/vedio.routes")
 
 const axios = require('axios');
 const nodemailer = require('nodemailer');
+
+
+
+const review=require("./Routes/doctorreview.routes")
 // const appointment=require("./Routes")
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5000
 
 // Middleware
 App.use(cors({ origin: ["http://localhost:5173", "http://localhost:3000"], credentials: true }));
@@ -42,6 +46,8 @@ App.use("/api/speciality",specialityRoutes)
 
 App.use('/api/vedio', vedio);
 
+
+App.use("/api/review",review);
 // App.use("/", );
 // App.use("/", );
 // App.use("/", );

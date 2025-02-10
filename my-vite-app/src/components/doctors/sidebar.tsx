@@ -33,12 +33,12 @@ const Sidebar: React.FC = () => {
 
   const menuItems = [
     { text: 'Home', icon: <HomeIcon />, onClick: () => handleNavigation('/') },
-    { text: 'Overview', icon: <DashboardIcon />, onClick: () => handleNavigation('/profile') },
+    { text: 'Overview', icon: <DashboardIcon />, onClick: () => handleNavigation('/dashboard') },
     { text: 'Appointment', icon: <EventIcon />, onClick: () => handleNavigation('/appointments') },
     { text: 'My Patients', icon: <PersonIcon />, onClick: () => handleNavigation('/patients') },
     { text: 'Schedule Timings', icon: <EventIcon />, onClick: () => handleNavigation('/doctor/availability') },
     { text: 'Payments', icon: <PaymentIcon />, onClick: () => handleNavigation('/payments') },
-    { text: 'Messages', icon: <MessageIcon />, onClick: () => handleNavigation('/chatrooms') },
+    { text: 'Messages', icon: <MessageIcon />, onClick: () => handleNavigation('/chat') },
     { text: 'Blog', icon: <ArticleIcon />, onClick: () => handleNavigation('/blog') },
     { text: 'Settings', icon: <SettingsIcon />, onClick: () => handleNavigation('/settings') },
   ];

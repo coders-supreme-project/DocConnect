@@ -39,7 +39,7 @@ export default function Register() {
     href: string;
 }
 const navItems: NavItem[] = [
-  { label: 'Home', href: '#' },
+  { label: 'Home', href: '/' },
   { label: 'Service', href: '#' },
   { label: 'Contact Us', href: '#' },
   { label: 'Help', href: '#' },
